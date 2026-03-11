@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trainingsplan · FitMol</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="navbar-brand">⚡ FitMol</a>
+    <div class="navbar-nav">
+      <a href="exercises.html" class="nav-link" data-i18n="nav_exercises">Übungen</a>
+      <a href="training.html" class="nav-link" data-i18n="nav_training">Training</a>
+      <a href="plan.html" class="nav-link active" data-i18n="nav_plan">Plan</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="nav-tool-wrap" id="nav-tool-wrap">
+        <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tool</button>
+        <div class="tool-menu" id="tool-menu">
+          <div class="tool-menu-header">Tools</div>
+          <button class="avatar-menu-item" onclick="openBmiModal()">📊 BMI Rechner</button>
+          <button class="avatar-menu-item" onclick="openCalorieModal()">🤖 Calorie AI</button>
+        </div>
+      </div>
+      <div class="nav-avatar-wrap" id="nav-avatar-wrap">
+        <div class="navbar-avatar" id="nav-avatar" onclick="toggleAvatarMenu(event)">?</div>
+        <div class="avatar-menu" id="avatar-menu">
+          <div class="avatar-menu-username" id="nav-username">...</div>
+          <a href="profile.html" class="avatar-menu-item" data-i18n="menu_settings">⚙️ Einstellungen</a>
+          <button class="avatar-menu-item" onclick="openContactModal()" data-i18n="menu_message">✉️ Nachricht</button>
+          <button class="avatar-menu-item avatar-menu-logout" onclick="logout()" data-i18n="menu_logout">🚪 Abmelden</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="home-content">
+
+    <div class="page-header">
+      <div class="page-title">📅 Trainingsplan</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="importPlan()">⬆️ Importieren</button>
+        <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="exportPlan()">⬇️ Exportieren</button>
+        <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="resetPlan()">Neuer Plan</button>
+      </div>
+    </div>
+
+    <!-- Draggable chips -->
+    <div class="training-chips-box">
+      <div class="chips-label">Trainings — ziehen oder antippen, dann auf einen Tag klicken</div>
+      <div class="chips-row" id="chips-row">
+        <span style="color:var(--gray);font-size:13px">Noch keine Trainings. <a href="training.html" style="color:var(--blue)">Erstellen →</a></span>
+      </div>
+    </div>
+
+    <!-- 7-day grid (scrollable on mobile) -->
+    <div class="plan-grid-scroll">
+      <div class="plan-grid" id="plan-grid"></div>
+    </div>
+
+    <!-- Save row -->
+    <div class="plan-save-row">
+      <input class="form-input" type="text" id="plan-name" placeholder="Planname (z.B. Woche 1)" />
+      <button class="btn btn-primary" style="width:auto;padding:14px 28px;white-space:nowrap" onclick="savePlan()">Plan speichern ✓</button>
+    </div>
+
+    <div id="plan-alert" class="alert alert-error" style="margin-top:12px"></div>
+    <div id="plan-success" class="alert alert-success" style="margin-top:12px"></div>
+
+    <!-- Saved plans -->
+    <div class="trainings-section">
+      <div class="page-header" style="margin-top:12px">
+        <div class="page-title" style="font-size:22px">📋 Gespeicherte Pläne</div>
+      </div>
+      <div id="saved-plans-list">
+        <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">Noch keine Pläne gespeichert.</div></div>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+    <a href="exercises.html" class="bottom-nav-item"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
+    <a href="training.html" class="bottom-nav-item"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
+    <a href="plan.html" class="bottom-nav-item active"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
+    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

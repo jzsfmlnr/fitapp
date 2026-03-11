@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Übungen · FitMol</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="navbar-brand">⚡ FitMol</a>
+    <div class="navbar-nav">
+      <a href="exercises.html" class="nav-link active" data-i18n="nav_exercises">Übungen</a>
+      <a href="training.html" class="nav-link" data-i18n="nav_training">Training</a>
+      <a href="plan.html" class="nav-link" data-i18n="nav_plan">Plan</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="nav-tool-wrap" id="nav-tool-wrap">
+        <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tool</button>
+        <div class="tool-menu" id="tool-menu">
+          <div class="tool-menu-header">Tools</div>
+          <button class="avatar-menu-item" onclick="openBmiModal()">📊 BMI Rechner</button>
+          <button class="avatar-menu-item" onclick="openCalorieModal()">🤖 Calorie AI</button>
+        </div>
+      </div>
+      <div class="nav-avatar-wrap" id="nav-avatar-wrap">
+        <div class="navbar-avatar" id="nav-avatar" onclick="toggleAvatarMenu(event)">?</div>
+        <div class="avatar-menu" id="avatar-menu">
+          <div class="avatar-menu-username" id="nav-username">...</div>
+          <a href="profile.html" class="avatar-menu-item" data-i18n="menu_settings">⚙️ Einstellungen</a>
+          <button class="avatar-menu-item" onclick="openContactModal()" data-i18n="menu_message">✉️ Nachricht</button>
+          <button class="avatar-menu-item avatar-menu-logout" onclick="logout()" data-i18n="menu_logout">🚪 Abmelden</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="home-content">
+    <div class="page-header">
+      <div class="page-title">💪 Übungen</div>
+      <button class="btn btn-primary" style="width:auto;padding:12px 24px" onclick="openExerciseModal()">+ Neue Übung</button>
+    </div>
+    <div id="exercise-grid" class="exercise-grid">
+      <div class="empty-state"><div class="empty-state-icon">💪</div><div class="empty-state-text">Noch keine Übungen erstellt.</div></div>
+    </div>
+  </main>
+
+  <!-- EXERCISE MODAL -->
+  <div class="modal-overlay" id="exercise-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title-text">Neue Übung</div>
+        <button class="modal-close" onclick="closeExerciseModal()">×</button>
+      </div>
+      <div id="modal-alert" class="alert alert-error"></div>
+      <input type="hidden" id="edit-exercise-id" />
+      <div class="form-group">
+        <label class="form-label" for="ex-name">Name</label>
+        <input class="form-input" type="text" id="ex-name" placeholder="z.B. Kniebeuge" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="ex-abbr">Abkürzung</label>
+        <input class="form-input" type="text" id="ex-abbr" placeholder="z.B. KB" maxlength="5" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="ex-desc">Beschreibung</label>
+        <textarea class="form-textarea" id="ex-desc" placeholder="Kurze Beschreibung der Übung…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bild</label>
+        <div class="tab-bar" style="margin-bottom:12px">
+          <button class="tab-btn active" id="img-tab-upload" onclick="switchImgTab('upload')">📁 Hochladen</button>
+          <button class="tab-btn" id="img-tab-camera" onclick="switchImgTab('camera')">📷 Kamera</button>
+        </div>
+        <div id="img-panel-upload">
+          <div class="img-picker-preview" onclick="document.getElementById('ex-img-file').click()">
+            <img id="upload-preview-img" src="" style="display:none" />
+            <div class="img-picker-placeholder" id="upload-placeholder"><div>🖼️</div><div>Klicken zum Hochladen</div></div>
+          </div>
+          <input type="file" id="ex-img-file" accept="image/*" style="display:none" onchange="handleExerciseImageUpload(event)" />
+        </div>
+        <div id="img-panel-camera" style="display:none">
+          <video class="camera-video" id="camera-video" autoplay playsinline></video>
+          <div class="camera-controls">
+            <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="capturePhoto()">📸 Aufnehmen</button>
+            <button class="btn btn-outline" style="width:auto;padding:10px 20px" onclick="stopCamera()">Abbrechen</button>
+          </div>
+          <img id="camera-preview-img" src="" style="display:none;width:100%;border-radius:12px;margin-top:10px" />
+        </div>
+      </div>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveExercise()">Übung speichern</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+    <a href="exercises.html" class="bottom-nav-item active"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
+    <a href="training.html" class="bottom-nav-item"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
+    <a href="plan.html" class="bottom-nav-item"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
+    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
