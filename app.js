@@ -673,13 +673,18 @@ function calculateBmi() {
 }
 
 // ── Calorie AI Modal ──────────────────────────────────────────
-function getOpenAIKey() {
-  let key = localStorage.getItem('openai_api_key');
-  if (!key) {
-    key = prompt('Bitte gib deinen OpenAI API Key ein:');
-    if (key) localStorage.setItem('openai_api_key', key.trim());
-  }
-  return key ? key.trim() : null;
+let _cachedOpenAIKey = null;
+
+async function getOpenAIKey() {
+  if (_cachedOpenAIKey) return _cachedOpenAIKey;
+  const { data, error } = await db
+    .from('app_config')
+    .select('value')
+    .eq('key', 'openai_api_key')
+    .single();
+  if (error || !data) throw new Error('OpenAI API Key nicht konfiguriert.');
+  _cachedOpenAIKey = data.value;
+  return _cachedOpenAIKey;
 }
 
 let _calorieStream = null; // camera stream ref
@@ -822,8 +827,7 @@ function calRetake() {
 }
 
 async function calAnalyzeImage() {
-  const apiKey = getOpenAIKey();
-  if (!apiKey) return;
+  const apiKey = await getOpenAIKey();
   const dataUrl = document.getElementById('cal-preview-img').src;
   const base64 = dataUrl.split(',')[1];
   document.getElementById('cal-loading').style.display = 'flex';
@@ -858,8 +862,7 @@ async function calAnalyzeImage() {
 }
 
 async function calAnalyzeText() {
-  const apiKey = getOpenAIKey();
-  if (!apiKey) return;
+  const apiKey = await getOpenAIKey();
   const input = document.getElementById('cal-text-input');
   const query = input.value.trim();
   if (!query) return;
