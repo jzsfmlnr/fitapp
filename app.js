@@ -531,8 +531,8 @@ async function saveProfile() {
 //   3. Create a template with vars {{name}} and {{message}} → copy TEMPLATE_ID
 //   4. Copy your Public Key from Account > API Keys
 const EMAILJS_SERVICE_ID  = 'service_maq182k';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+const EMAILJS_TEMPLATE_ID = 'template_mjubl19';
+const EMAILJS_PUBLIC_KEY  = '7N3bLQQxxqv6dYckx';
 
 function injectContactModal() {
   if (document.getElementById('contact-modal')) return;
@@ -673,35 +673,255 @@ function calculateBmi() {
 }
 
 // ── Calorie AI Modal ──────────────────────────────────────────
+function getOpenAIKey() {
+  let key = localStorage.getItem('openai_api_key');
+  if (!key) {
+    key = prompt('Bitte gib deinen OpenAI API Key ein:');
+    if (key) localStorage.setItem('openai_api_key', key.trim());
+  }
+  return key ? key.trim() : null;
+}
+
+let _calorieStream = null; // camera stream ref
+
 function injectCalorieModal() {
   if (document.getElementById('calorie-modal')) return;
   const el = document.createElement('div');
   el.innerHTML = `
     <div class="modal-overlay" id="calorie-modal">
-      <div class="modal-card" style="max-width:440px">
+      <div class="modal-card calorie-modal-card">
         <div class="modal-header">
           <div class="modal-title">🤖 Calorie AI</div>
           <button class="modal-close" onclick="closeCalorieModal()">×</button>
         </div>
-        <div class="calorie-placeholder">
-          <div class="calorie-placeholder-icon">🚧</div>
-          <div class="calorie-placeholder-text">Function still in progress...</div>
-          <div class="calorie-placeholder-sub" data-i18n="calorie_coming_soon">This feature is in development and will be available soon.</div>
+
+        <!-- Mode Toggle -->
+        <div class="cal-mode-toggle">
+          <button class="cal-mode-btn active" onclick="switchCalorieMode('camera')">📸 Kamera</button>
+          <button class="cal-mode-btn" onclick="switchCalorieMode('text')">✏️ Text</button>
         </div>
+
+        <!-- Camera Mode -->
+        <div class="cal-mode-panel active" id="cal-camera-panel">
+          <div class="cal-camera-area" id="cal-camera-area">
+            <video id="cal-video" class="cal-video" autoplay playsinline></video>
+            <canvas id="cal-canvas" style="display:none"></canvas>
+            <img id="cal-preview-img" class="cal-preview-img" style="display:none" />
+          </div>
+          <div class="cal-camera-btns">
+            <button class="btn btn-primary" style="width:auto;padding:12px 24px" id="cal-snap-btn" onclick="calSnap()">📸 Foto aufnehmen</button>
+            <button class="btn btn-outline" style="width:auto;padding:12px 24px;display:none" id="cal-retake-btn" onclick="calRetake()">🔄 Nochmal</button>
+            <button class="btn btn-primary" style="width:auto;padding:12px 24px;display:none;background:linear-gradient(135deg,#36B37E,#1a8a5a)" id="cal-analyze-btn" onclick="calAnalyzeImage()">🔍 Analysieren</button>
+          </div>
+        </div>
+
+        <!-- Text Mode -->
+        <div class="cal-mode-panel" id="cal-text-panel">
+          <div style="margin-bottom:12px">
+            <label class="form-label">Lebensmittel eingeben</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" type="text" id="cal-text-input" placeholder="z.B. 200g Hähnchenbrust mit Reis" style="flex:1" />
+              <button class="btn btn-primary" style="width:auto;padding:12px 20px;white-space:nowrap" onclick="calAnalyzeText()">🔍</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="cal-loading" id="cal-loading">
+          <div class="cal-loading-spinner"></div>
+          <div style="font-size:14px;color:var(--gray);margin-top:12px">AI analysiert...</div>
+        </div>
+
+        <!-- Result -->
+        <div class="cal-result" id="cal-result"></div>
       </div>
     </div>`;
   document.body.appendChild(el.firstElementChild);
-  applyLanguage(getLang());
 }
 
 function openCalorieModal() {
   injectCalorieModal();
-  document.getElementById('calorie-modal').classList.add('open');
+  const m = document.getElementById('calorie-modal');
+  m.classList.add('open');
+  // Reset state
+  document.getElementById('cal-result').innerHTML = '';
+  document.getElementById('cal-result').style.display = 'none';
+  document.getElementById('cal-loading').style.display = 'none';
+  switchCalorieMode('camera');
 }
 
 function closeCalorieModal() {
   const m = document.getElementById('calorie-modal');
   if (m) m.classList.remove('open');
+  calStopCamera();
+}
+
+function switchCalorieMode(mode) {
+  document.querySelectorAll('.cal-mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cal-mode-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.cal-mode-btn[onclick*="${mode}"]`).classList.add('active');
+  document.getElementById(mode === 'camera' ? 'cal-camera-panel' : 'cal-text-panel').classList.add('active');
+  if (mode === 'camera') {
+    calStartCamera();
+  } else {
+    calStopCamera();
+  }
+}
+
+async function calStartCamera() {
+  const video = document.getElementById('cal-video');
+  const preview = document.getElementById('cal-preview-img');
+  if (preview) { preview.style.display = 'none'; }
+  if (video) { video.style.display = 'block'; }
+  document.getElementById('cal-snap-btn').style.display = '';
+  document.getElementById('cal-retake-btn').style.display = 'none';
+  document.getElementById('cal-analyze-btn').style.display = 'none';
+  try {
+    if (_calorieStream) return;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    _calorieStream = stream;
+    video.srcObject = stream;
+  } catch (e) {
+    console.error('Camera error:', e);
+    document.getElementById('cal-camera-area').innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">📷 Kamera nicht verfügbar.<br><span style="font-size:12px">Bitte erlaube den Kamerazugriff oder nutze die Texteingabe.</span></div>`;
+  }
+}
+
+function calStopCamera() {
+  if (_calorieStream) {
+    _calorieStream.getTracks().forEach(t => t.stop());
+    _calorieStream = null;
+  }
+}
+
+function calSnap() {
+  const video = document.getElementById('cal-video');
+  const canvas = document.getElementById('cal-canvas');
+  const preview = document.getElementById('cal-preview-img');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  video.style.display = 'none';
+  calStopCamera();
+  document.getElementById('cal-snap-btn').style.display = 'none';
+  document.getElementById('cal-retake-btn').style.display = '';
+  document.getElementById('cal-analyze-btn').style.display = '';
+}
+
+function calRetake() {
+  document.getElementById('cal-preview-img').style.display = 'none';
+  document.getElementById('cal-video').style.display = 'block';
+  document.getElementById('cal-snap-btn').style.display = '';
+  document.getElementById('cal-retake-btn').style.display = 'none';
+  document.getElementById('cal-analyze-btn').style.display = 'none';
+  document.getElementById('cal-result').style.display = 'none';
+  calStartCamera();
+}
+
+async function calAnalyzeImage() {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) return;
+  const dataUrl = document.getElementById('cal-preview-img').src;
+  const base64 = dataUrl.split(',')[1];
+  document.getElementById('cal-loading').style.display = 'flex';
+  document.getElementById('cal-result').style.display = 'none';
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Analysiere dieses Lebensmittel-Bild. Antworte NUR als JSON mit exakt diesem Format: {"name":"Name des Lebensmittels","calories":Zahl,"protein":Zahl,"carbs":Zahl,"fat":Zahl,"grade":"A/B/C/D/E","reason":"Kurze Begründung der Bewertung"}. calories/protein/carbs/fat pro geschätzte Portion. Grade: A=sehr gesund, B=gesund, C=neutral, D=ungesund, E=sehr ungesund. Antworte NUR mit dem JSON, kein anderer Text.' },
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
+          ]
+        }],
+        max_tokens: 300
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices[0].message.content;
+    const json = JSON.parse(text.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+    calShowResult(json);
+  } catch (e) {
+    console.error('Calorie AI error:', e);
+    document.getElementById('cal-result').style.display = 'block';
+    document.getElementById('cal-result').innerHTML = `<div style="text-align:center;color:var(--red);padding:16px">Fehler: ${e.message}</div>`;
+  }
+  document.getElementById('cal-loading').style.display = 'none';
+}
+
+async function calAnalyzeText() {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) return;
+  const input = document.getElementById('cal-text-input');
+  const query = input.value.trim();
+  if (!query) return;
+  document.getElementById('cal-loading').style.display = 'flex';
+  document.getElementById('cal-result').style.display = 'none';
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{
+          role: 'user',
+          content: `Analysiere dieses Lebensmittel: "${query}". Antworte NUR als JSON mit exakt diesem Format: {"name":"Name des Lebensmittels","calories":Zahl,"protein":Zahl,"carbs":Zahl,"fat":Zahl,"grade":"A/B/C/D/E","reason":"Kurze Begründung der Bewertung"}. calories/protein/carbs/fat pro geschätzte Portion. Grade: A=sehr gesund, B=gesund, C=neutral, D=ungesund, E=sehr ungesund. Antworte NUR mit dem JSON, kein anderer Text.`
+        }],
+        max_tokens: 300
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices[0].message.content;
+    const json = JSON.parse(text.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+    calShowResult(json);
+  } catch (e) {
+    console.error('Calorie AI error:', e);
+    document.getElementById('cal-result').style.display = 'block';
+    document.getElementById('cal-result').innerHTML = `<div style="text-align:center;color:var(--red);padding:16px">Fehler: ${e.message}</div>`;
+  }
+  document.getElementById('cal-loading').style.display = 'none';
+}
+
+function calShowResult(r) {
+  const gradeColors = { A: '#36B37E', B: '#6dd400', C: '#C9A227', D: '#E8732A', E: '#E74C3C' };
+  const gradeBgs = { A: 'rgba(54,179,126,0.15)', B: 'rgba(109,212,0,0.15)', C: 'rgba(201,162,39,0.15)', D: 'rgba(232,115,42,0.15)', E: 'rgba(231,76,60,0.15)' };
+  const color = gradeColors[r.grade] || '#7a84a0';
+  const bg = gradeBgs[r.grade] || 'rgba(122,132,160,0.15)';
+  const el = document.getElementById('cal-result');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="cal-result-card">
+      <div class="cal-result-grade" style="background:${bg};color:${color}">${r.grade}</div>
+      <div class="cal-result-name">${r.name}</div>
+      <div class="cal-result-reason">${r.reason}</div>
+      <div class="cal-macros-grid">
+        <div class="cal-macro">
+          <div class="cal-macro-val" style="color:#E8732A">${r.calories}</div>
+          <div class="cal-macro-label">kcal</div>
+        </div>
+        <div class="cal-macro">
+          <div class="cal-macro-val" style="color:#36B37E">${r.protein}g</div>
+          <div class="cal-macro-label">Protein</div>
+        </div>
+        <div class="cal-macro">
+          <div class="cal-macro-val" style="color:#C9A227">${r.carbs}g</div>
+          <div class="cal-macro-label">Carbs</div>
+        </div>
+        <div class="cal-macro">
+          <div class="cal-macro-val" style="color:#E74C3C">${r.fat}g</div>
+          <div class="cal-macro-label">Fett</div>
+        </div>
+      </div>
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -853,26 +1073,39 @@ async function loadExercisePage() {
     return;
   }
   window._exerciseCache = exercises;
-  grid.innerHTML = exercises.map(ex => {
-    const tg = getTagInfo(ex.tag);
-    const tagHtml = tg ? `<span class="ex-tag-badge" style="background:${tg.bg};color:${tg.color}">${tEx['tag_' + tg.id] || tg.id}</span>` : '';
-    const safeId = ex.id.replace(/'/g, "\\'");
+  // Group by tag, sort groups by count descending
+  const tagGroups = {};
+  exercises.forEach(ex => {
+    const tag = ex.tag || 'sonstiges';
+    if (!tagGroups[tag]) tagGroups[tag] = [];
+    tagGroups[tag].push(ex);
+  });
+  const sortedTags = Object.keys(tagGroups).sort((a, b) => tagGroups[b].length - tagGroups[a].length);
+  grid.innerHTML = sortedTags.map(tagId => {
+    const tg = getTagInfo(tagId);
+    const tagLabel = tg ? (tEx['tag_' + tg.id] || tg.id) : tagId;
+    const tagColor = tg ? tg.color : '#7a84a0';
+    const items = tagGroups[tagId];
     return `
-    <div class="exercise-card" draggable="true" data-id="${ex.id}">
-      <div class="exercise-card-img">
-        ${ex.image_data
-          ? `<img src="${ex.image_data}" alt="${ex.name}" />`
-          : `<div class="exercise-card-abbr-bg">${ex.abbreviation || '?'}</div>`}
-        ${ex.abbreviation ? `<div class="exercise-card-abbr-tag">${ex.abbreviation}</div>` : ''}
-      </div>
-      <div class="exercise-card-body">
-        <div class="exercise-card-name">${ex.name}</div>
-        ${tagHtml}
-        <div class="exercise-card-desc">${ex.description || '—'}</div>
-      </div>
-      <div class="exercise-card-actions">
-        <button class="btn-icon" onclick="openExerciseModal(window._exerciseCache.find(e=>e.id==='${safeId}'))">✏️</button>
-        <button class="btn-icon btn-icon-red" onclick="deleteExercise('${safeId}')">🗑️</button>
+    <div class="ex-tag-group">
+      <div class="ex-tag-group-header" style="color:${tagColor}">${tagLabel} <span style="opacity:0.5;font-size:13px">(${items.length})</span></div>
+      <div class="ex-tag-group-grid">
+        ${items.map(ex => {
+          const safeId = ex.id.replace(/'/g, "\\'");
+          return `
+          <div class="exercise-card-mini" draggable="true" data-id="${ex.id}">
+            <div class="ex-mini-img">
+              ${ex.image_data
+                ? `<img src="${ex.image_data}" alt="${ex.name}" />`
+                : `<div class="ex-mini-abbr">${ex.abbreviation || '?'}</div>`}
+            </div>
+            <div class="ex-mini-name">${ex.name}</div>
+            <div class="ex-mini-actions">
+              <button class="btn-icon" style="width:28px;height:28px" onclick="openExerciseModal(window._exerciseCache.find(e=>e.id==='${safeId}'))">✏️</button>
+              <button class="btn-icon btn-icon-red" style="width:28px;height:28px" onclick="deleteExercise('${safeId}')">🗑️</button>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   }).join('');
@@ -1586,6 +1819,14 @@ async function openTrainModal() {
         <div class="train-today-title">${todayLog.title}</div>
         <div class="train-today-time">${time} Uhr</div>
       </div>
+      <div style="margin-top:16px">
+        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">Gewicht (kg)</label>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="train-weight-input" placeholder="z.B. 75" step="0.1" min="0" value="${todayLog.weight || ''}"
+            style="flex:1;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:15px;outline:none" />
+          <button onclick="updateTodayWeight()" style="padding:10px 18px;border-radius:var(--radius-sm);border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;cursor:pointer">Speichern</button>
+        </div>
+      </div>
     `;
   } else {
     const { data: trainings } = await db.from('trainings').select('id,title').eq('username', user).order('created_at', { ascending: false });
@@ -1593,6 +1834,11 @@ async function openTrainModal() {
     body.innerHTML = `
       <div class="train-modal-date">${dateStr}</div>
       <div class="train-not-today">Noch kein Training heute 💤</div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">Gewicht (kg)</label>
+        <input type="number" id="train-weight-input" placeholder="z.B. 75" step="0.1" min="0"
+          style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:15px;outline:none" />
+      </div>
       ${list.length > 0 ? `
         <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--gray)">Training auswählen:</div>
         <div class="train-picker-list">
@@ -1617,10 +1863,22 @@ function logTrainingToday(trainingId, title) {
   const user = getSession(); if (!user) return;
   const logs = getTrainingLogs(user);
   const today = getTodayKey();
+  const weightInput = document.getElementById('train-weight-input');
+  const weight = weightInput ? parseFloat(weightInput.value) || null : null;
   const filtered = logs.filter(l => !l.logged_at || getLocalDateKey(l.logged_at) !== today);
-  filtered.push({ training_id: trainingId, title, logged_at: new Date().toISOString() });
+  filtered.push({ training_id: trainingId, title, logged_at: new Date().toISOString(), weight });
   saveTrainingLogs(user, filtered);
   openTrainModal();
+}
+
+function updateTodayWeight() {
+  const user = getSession(); if (!user) return;
+  const logs = getTrainingLogs(user);
+  const today = getTodayKey();
+  const weightInput = document.getElementById('train-weight-input');
+  const weight = weightInput ? parseFloat(weightInput.value) || null : null;
+  const log = logs.find(l => l.logged_at && getLocalDateKey(l.logged_at) === today);
+  if (log) { log.weight = weight; saveTrainingLogs(user, logs); openTrainModal(); }
 }
 
 // ── Home Page ─────────────────────────────────────────────────
@@ -1637,8 +1895,8 @@ async function loadHomePage() {
   });
   const count = weekLogs.length;
   let motive, color;
-  if (count === 0) { motive = "Who's gonna carry the logs?"; color = '#E74C3C'; }
-  else if (count < 3) { motive = 'MORE!'; color = '#1a6fff'; }
+  if (count === 0) { motive = "Who's gonna carry the logs?"; color = '#ff1900'; }
+  else if (count < 3) { motive = 'MORE!'; color = '#ff1a1a'; }
   else { motive = 'Mafiaboss Incoming...'; color = '#36B37E'; }
   const dots = [];
   for (let i = 0; i < 7; i++) {
@@ -1666,6 +1924,98 @@ async function loadHomePage() {
 }
 
 // ── Analytics Page ────────────────────────────────────────────
+function switchDiaryTab(tab) {
+  document.querySelectorAll('.diary-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.diary-tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.diary-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById(`diary-${tab}`).classList.add('active');
+  if (tab === 'trainings') loadDiaryTrainings();
+  if (tab === 'progress') renderProgressChart();
+}
+
+function loadDiaryTrainings() {
+  const user = getSession(); if (!user) return;
+  const logs = getTrainingLogs(user);
+  const container = document.getElementById('diary-trainings-list');
+  if (!container) return;
+  if (logs.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">Noch keine Trainings geloggt.</p>';
+    return;
+  }
+  const sorted = [...logs].sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at));
+  container.innerHTML = sorted.map(l => {
+    const d = new Date(l.logged_at);
+    const dateStr = d.toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    const timeStr = d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    const weightStr = l.weight ? `<div class="diary-log-weight">⚖️ ${l.weight} kg</div>` : '';
+    return `<div class="diary-log-item">
+      <div>
+        <div class="diary-log-title">${l.title}</div>
+        ${weightStr}
+      </div>
+      <div style="text-align:right">
+        <div class="diary-log-date">${dateStr}</div>
+        <div class="diary-log-date">${timeStr} Uhr</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProgressChart() {
+  const svg = document.getElementById('progress-weight-svg');
+  if (!svg) return;
+  const user = getSession(); if (!user) return;
+  const logs = getTrainingLogs(user).filter(l => l.weight);
+  const summaryEl = document.getElementById('progress-summary');
+  if (logs.length < 2) {
+    svg.innerHTML = '<text x="150" y="80" text-anchor="middle" fill="#7a84a0" font-size="13">Mindestens 2 Gewichtseinträge nötig</text>';
+    if (summaryEl) summaryEl.innerHTML = '';
+    return;
+  }
+  // Weight difference summary
+  if (summaryEl) {
+    const sortedForDiff = [...logs].sort((a, b) => new Date(a.logged_at) - new Date(b.logged_at));
+    const firstW = sortedForDiff[0].weight;
+    const lastW = sortedForDiff[sortedForDiff.length - 1].weight;
+    const diff = lastW - firstW;
+    const absDiff = Math.abs(diff).toFixed(1);
+    const gained = diff > 0;
+    const color = gained ? '#E74C3C' : '#36B37E';
+    const sign = gained ? '+' : '-';
+    const msg = gained ? 'zugenommen. Bulk weiter!' : 'abgenommen. Niemand wird dich im Sommer erkennen!';
+    summaryEl.innerHTML = `
+      <div style="font-size:12px;color:var(--gray);margin-bottom:4px">du hast seit Beginn...</div>
+      <div style="font-size:clamp(48px,12vw,72px);font-weight:900;color:${color};line-height:1">${sign}${absDiff} kg</div>
+      <div style="font-size:12px;color:var(--gray);margin-top:6px">${msg}</div>
+    `;
+  }
+  const sorted = [...logs].sort((a, b) => new Date(a.logged_at) - new Date(b.logged_at));
+  const weights = sorted.map(l => l.weight);
+  const minW = Math.min(...weights), maxW = Math.max(...weights);
+  const range = maxW - minW || 1;
+  const W = 300, H = 150, PAD = 40;
+  const xStep = (W - PAD * 2) / Math.max(sorted.length - 1, 1);
+  const points = sorted.map((l, i) => ({
+    x: PAD + i * xStep,
+    y: H - PAD - ((l.weight - minW) / range) * (H - PAD * 2),
+    weight: l.weight,
+    date: new Date(l.logged_at).toLocaleDateString('de-DE', { day:'numeric', month:'short' })
+  }));
+  let paths = '';
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i], p2 = points[i + 1];
+    const color = p2.weight < p1.weight ? '#36B37E' : p2.weight > p1.weight ? '#E74C3C' : '#1a6fff';
+    paths += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  const dots = points.map(p => `
+    <circle cx="${p.x}" cy="${p.y}" r="5" fill="#050d1f" stroke="#1a6fff" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" fill="#e8edf5" font-size="10" font-weight="bold">${p.weight}</text>
+    <text x="${p.x}" y="${H - 8}" text-anchor="middle" fill="#7a84a0" font-size="8">${p.date}</text>
+  `).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = paths + dots;
+}
+
 async function loadAnalyticsPage() {
   const user = guardHome(); if (!user) return;
   await loadNavbarAvatar(user);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics · FitMol</title>
+  <title>Diary · FitMol</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -23,32 +23,58 @@
     </div>
   </nav>
   <main class="home-content">
-    <div class="page-header">
+    <div class="diary-tabs">
+      <button class="diary-tab active" onclick="switchDiaryTab('analytics')">Analytics</button>
+      <button class="diary-tab" onclick="switchDiaryTab('trainings')">Trainings</button>
+      <button class="diary-tab" onclick="switchDiaryTab('progress')">Progress</button>
+    </div>
+    <!-- Tab: Analytics -->
+    <div class="diary-tab-content active" id="diary-analytics">
+      <!-- Calendar card -->
+      <div class="builder-card" style="margin:0 0 16px">
+        <div class="builder-card-title" style="display:flex;justify-content:space-between;align-items:center">
+          <button onclick="changeAnalyticsMonth(-1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">‹</button>
+          <span id="analytics-month-title"></span>
+          <button onclick="changeAnalyticsMonth(1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">›</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px;text-align:center">
+          <div style="font-size:11px;color:var(--gray);padding:4px">Mo</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">Di</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">Mi</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">Do</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">Fr</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">Sa</div>
+          <div style="font-size:11px;color:var(--gray);padding:4px">So</div>
+        </div>
+        <div class="analytics-calendar" id="analytics-calendar"></div>
+      </div>
+      <!-- Weekly chart card -->
+      <div class="builder-card" style="margin:0 0 16px">
+        <div class="builder-card-title">Wöchentliche Trainings</div>
+        <div class="analytics-chart-wrap">
+          <svg id="analytics-chart-svg" viewBox="0 0 300 150" style="width:100%;overflow:visible"></svg>
+        </div>
+      </div>
+    </div>
 
-    </div>
-    <!-- Calendar card -->
-    <div class="builder-card" style="margin:0 0 16px">
-      <div class="builder-card-title" style="display:flex;justify-content:space-between;align-items:center">
-        <button onclick="changeAnalyticsMonth(-1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">‹</button>
-        <span id="analytics-month-title"></span>
-        <button onclick="changeAnalyticsMonth(1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">›</button>
+    <!-- Tab: Trainings -->
+    <div class="diary-tab-content" id="diary-trainings">
+      <div class="builder-card" style="margin:0 0 16px">
+        <div class="builder-card-title">Trainings-Log</div>
+        <div id="diary-trainings-list" style="padding:8px 0">
+          <p style="text-align:center;color:var(--gray);font-size:14px">Lade...</p>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px;text-align:center">
-        <div style="font-size:11px;color:var(--gray);padding:4px">Mo</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">Di</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">Mi</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">Do</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">Fr</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">Sa</div>
-        <div style="font-size:11px;color:var(--gray);padding:4px">So</div>
-      </div>
-      <div class="analytics-calendar" id="analytics-calendar"></div>
     </div>
-    <!-- Weekly chart card -->
-    <div class="builder-card" style="margin:0 0 16px">
-      <div class="builder-card-title">Wöchentliche Trainings</div>
-      <div class="analytics-chart-wrap">
-        <svg id="analytics-chart-svg" viewBox="0 0 300 150" style="width:100%;overflow:visible"></svg>
+
+    <!-- Tab: Progress -->
+    <div class="diary-tab-content" id="diary-progress">
+      <div id="progress-summary" style="text-align:center;margin-bottom:16px"></div>
+      <div class="builder-card" style="margin:0 0 16px">
+        <div class="builder-card-title">Gewichtsverlauf</div>
+        <div class="analytics-chart-wrap">
+          <svg id="progress-weight-svg" viewBox="0 0 300 150" style="width:100%;overflow:visible"></svg>
+        </div>
       </div>
     </div>
   </main>
@@ -56,7 +82,7 @@
     <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
     <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
     <button class="bottom-nav-item bn-train-btn" onclick="openTrainModal()"><span class="bn-icon">⚡</span><span>Train</span></button>
-    <a href="analytics.html" class="bottom-nav-item active"><span class="bn-icon">📊</span><span>Analytics</span></a>
+    <a href="analytics.html" class="bottom-nav-item active"><span class="bn-icon">📊</span><span>Diary</span></a>
     <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profil</span></a>
   </nav>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
