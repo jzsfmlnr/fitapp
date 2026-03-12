@@ -35,37 +35,15 @@
     </div>
   </nav>
 
-  <main class="home-content">
-    <div class="greeting-card">
-      <div class="greeting-label" data-i18n="dashboard_label">Dein Dashboard</div>
-      <h1 class="greeting-headline">Hallo, <span id="greeting-name">Freund</span>! 👋</h1>
-      <p class="greeting-sub" data-i18n="greeting_sub">Bereit für dein Training? Erstelle Übungen, baue Trainings und plane deine Woche.</p>
-    </div>
-    <div class="nav-cards">
-      <a href="exercises.html" class="nav-card">
-        <div class="nav-card-icon nav-card-blue">💪</div>
-        <div class="nav-card-title" data-i18n="card_exercises_title">Übungen</div>
-        <div class="nav-card-desc" data-i18n="card_exercises_desc">Erstelle und verwalte deine Übungen</div>
-      </a>
-      <a href="training.html" class="nav-card">
-        <div class="nav-card-icon nav-card-gold">🏋️</div>
-        <div class="nav-card-title" data-i18n="card_training_title">Training</div>
-        <div class="nav-card-desc" data-i18n="card_training_desc">Baue individuelle Trainingseinheiten</div>
-      </a>
-      <a href="plan.html" class="nav-card">
-        <div class="nav-card-icon nav-card-dark">📅</div>
-        <div class="nav-card-title" data-i18n="card_plan_title">Trainingsplan</div>
-        <div class="nav-card-desc" data-i18n="card_plan_desc">Plane deine Woche mit Trainings</div>
-      </a>
-    </div>
+  <main class="home-content" id="home-week-section">
   </main>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="bottom-nav-item active"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
-    <a href="exercises.html" class="bottom-nav-item"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
-    <a href="training.html" class="bottom-nav-item"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
-    <a href="plan.html" class="bottom-nav-item"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
-    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+    <a href="home.html" class="bottom-nav-item active"><span class="bn-icon">🏠</span><span>Home</span></a>
+    <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
+    <button class="bottom-nav-item bn-train-btn" onclick="openTrainModal()"><span class="bn-icon">⚡</span><span>Train</span></button>
+    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Analytics</span></a>
+    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profil</span></a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

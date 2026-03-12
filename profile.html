@@ -37,12 +37,6 @@
 
   <main class="home-content">
 
-    <div class="greeting-card" style="margin-bottom:36px">
-      <div class="greeting-label" data-i18n="settings_label">Einstellungen</div>
-      <h1 class="greeting-headline" data-i18n="profile_headline">Dein Profil ✏️</h1>
-      <p class="greeting-sub" data-i18n="profile_sub">Passe deine persönlichen Informationen an.</p>
-    </div>
-
     <div class="bmi-card">
 
       <div class="profile-avatar-section">
@@ -93,18 +87,18 @@
       <button class="btn btn-primary" id="save-btn" onclick="saveProfile()" data-i18n="btn_save">Speichern ✓</button>
 
       <div style="margin-top:20px;text-align:center">
-        <button class="btn btn-outline" style="width:auto;padding:10px 24px;color:#c0392b;border-color:#c0392b" onclick="logout()" data-i18n="btn_logout_btn">🚪 Abmelden</button>
+        <button class="btn btn-outline" style="width:auto;padding:10px 24px;color:var(--red);border-color:var(--red)" onclick="logout()" data-i18n="btn_logout_btn">🚪 Abmelden</button>
       </div>
 
     </div>
   </main>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
-    <a href="exercises.html" class="bottom-nav-item"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
-    <a href="training.html" class="bottom-nav-item"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
-    <a href="plan.html" class="bottom-nav-item"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
-    <a href="profile.html" class="bottom-nav-item active"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
+    <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
+    <button class="bottom-nav-item bn-train-btn" onclick="openTrainModal()"><span class="bn-icon">⚡</span><span>Train</span></button>
+    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Analytics</span></a>
+    <a href="profile.html" class="bottom-nav-item active"><span class="bn-icon">👤</span><span>Profil</span></a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

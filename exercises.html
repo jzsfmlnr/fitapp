@@ -60,11 +60,15 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="ex-abbr">Abkürzung</label>
-        <input class="form-input" type="text" id="ex-abbr" placeholder="z.B. KB" maxlength="5" />
+        <input class="form-input" type="text" id="ex-abbr" placeholder="z.B. KB" maxlength="12" />
       </div>
       <div class="form-group">
         <label class="form-label" for="ex-desc">Beschreibung</label>
         <textarea class="form-textarea" id="ex-desc" placeholder="Kurze Beschreibung der Übung…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_tag">Muskelgruppe</label>
+        <div class="tag-selector" id="ex-tag-selector"></div>
       </div>
       <div class="form-group">
         <label class="form-label">Bild</label>
@@ -93,11 +97,11 @@
   </div>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
-    <a href="exercises.html" class="bottom-nav-item active"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
-    <a href="training.html" class="bottom-nav-item"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
-    <a href="plan.html" class="bottom-nav-item"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
-    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
+    <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span>Routine</span></a>
+    <button class="bottom-nav-item bn-train-btn" onclick="openTrainModal()"><span class="bn-icon">⚡</span><span>Train</span></button>
+    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Analytics</span></a>
+    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profil</span></a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

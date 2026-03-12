@@ -36,72 +36,70 @@
   </nav>
 
   <main class="home-content">
-
-    <!-- ① MEINE TRAININGS -->
     <div class="page-header">
-      <div class="page-title">📋 Meine Trainings</div>
-      <a href="#builder-section" class="btn btn-primary" style="width:auto;padding:12px 24px;text-decoration:none">+ Neues Training</a>
+      <div class="page-title" data-i18n="page_training_title">📋 Meine Trainings</div>
+      <button class="btn btn-primary" style="width:auto;padding:12px 24px" onclick="openTrainingModal()" data-i18n="btn_new_training">+ Neues Training</button>
     </div>
     <div id="saved-trainings-list">
       <div class="empty-state"><div class="empty-state-icon">🏋️</div><div class="empty-state-text">Noch keine Trainings gespeichert.</div></div>
     </div>
-
-    <!-- ② TRAINING ERSTELLEN -->
-    <div id="builder-section" style="margin-top:48px">
-      <div class="page-header">
-        <div class="page-title" style="font-size:22px">➕ Training erstellen</div>
-        <button class="btn btn-outline" style="width:auto;padding:10px 20px" onclick="resetTrainingBuilder()">Leeren</button>
-      </div>
-
-      <div class="training-layout">
-        <div class="training-sidebar">
-          <div class="sidebar-title">Übungen</div>
-          <div id="sidebar-exercises">
-            <div class="empty-state" style="padding:24px 0">
-              <div class="empty-state-icon" style="font-size:28px">💪</div>
-              <div class="empty-state-text" style="font-size:13px">Keine Übungen. <a href="exercises.html" style="color:var(--blue)">Erstellen →</a></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="training-builder">
-          <div class="builder-card">
-            <div class="builder-card-title">Training Info</div>
-            <div id="training-alert" class="alert alert-error"></div>
-            <input type="hidden" id="edit-training-id" />
-            <div class="form-group">
-              <label class="form-label" for="tr-title">Titel</label>
-              <input class="form-input" type="text" id="tr-title" placeholder="z.B. Beintraining" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="tr-desc">Beschreibung</label>
-              <textarea class="form-textarea" id="tr-desc" placeholder="Kurze Beschreibung…" style="min-height:70px"></textarea>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label class="form-label" for="tr-date">Datum</label>
-              <input class="form-input" type="text" id="tr-date" readonly />
-            </div>
-          </div>
-
-          <div class="builder-card">
-            <div class="builder-card-title">Übungen hinzufügen</div>
-            <div class="dropzone-area" id="training-dropzone"
-                 ondragover="event.preventDefault(); this.classList.add('drag-over')"
-                 ondragleave="this.classList.remove('drag-over')"
-                 ondrop="onDropExercise(event)">
-              <div class="dropzone-empty" id="dropzone-empty">
-                <div>⬇️</div>
-                <div>Übungen ziehen oder antippen</div>
-              </div>
-              <div class="dropzone-exercises" id="dropzone-exercises" style="display:none"></div>
-            </div>
-          </div>
-
-          <button class="btn btn-primary" id="training-save-btn" onclick="saveTraining()">Training speichern ✓</button>
-        </div>
-      </div>
-    </div>
   </main>
+
+  <!-- TRAINING BUILDER MODAL -->
+  <div class="modal-overlay" id="training-builder-modal">
+    <div class="training-builder-card">
+
+      <!-- Sticky header -->
+      <div class="tb-header">
+        <div class="modal-title" id="training-modal-title">Training erstellen</div>
+        <button class="modal-close" onclick="closeTrainingModal()">×</button>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="tb-body">
+        <input type="hidden" id="edit-training-id" />
+        <div id="training-alert" class="alert alert-error"></div>
+
+        <!-- Info box (compact) -->
+        <div class="builder-card builder-card-compact">
+          <div class="training-info-row">
+            <div class="training-info-fields">
+              <input class="form-input training-info-input" type="text" id="tr-title" placeholder="Titel" data-i18n-ph="tr_title_ph" />
+              <input class="form-input training-info-input" type="text" id="tr-desc" placeholder="Beschreibung (optional)" data-i18n-ph="tr_desc_ph" />
+            </div>
+            <div class="training-info-intensity">
+              <div class="intensity-label-row">
+                <span class="form-label" style="margin:0" data-i18n="label_intensity">Intensität</span>
+                <span id="intensity-val-label" class="intensity-val-label">3</span>
+              </div>
+              <input type="range" min="1" max="5" value="3" id="tr-intensity" class="intensity-slider" oninput="updateIntensityDisplay(this.value)" />
+              <div class="intensity-dots" id="intensity-dots"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available exercises strip + grid combined -->
+        <div class="builder-card builder-ex-section">
+          <div class="builder-card-title" data-i18n="section_add_exercises">Übungen hinzufügen</div>
+          <div class="builder-ex-strip" id="builder-ex-strip"></div>
+          <div class="training-ex-grid" id="training-ex-grid"
+               ondragover="event.preventDefault()"
+               ondrop="onDropToTrainingGrid(event)">
+            <div class="training-grid-empty" id="training-grid-empty">
+              <div>⬇️</div>
+              <div data-i18n="dropzone_hint">Übungen ziehen oder antippen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky footer -->
+      <div class="tb-footer">
+        <button class="btn btn-primary" id="training-save-btn" onclick="saveTraining()" data-i18n="btn_save_training">Training speichern ✓</button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- VIEW TRAINING MODAL -->
   <div class="modal-overlay" id="view-training-modal">
@@ -119,11 +117,11 @@
   </div>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
-    <a href="exercises.html" class="bottom-nav-item"><span class="bn-icon">💪</span><span data-i18n="bn_exercises">Übungen</span></a>
-    <a href="training.html" class="bottom-nav-item active"><span class="bn-icon">🏋️</span><span data-i18n="bn_training">Training</span></a>
-    <a href="plan.html" class="bottom-nav-item"><span class="bn-icon">📅</span><span data-i18n="bn_plan">Plan</span></a>
-    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span data-i18n="bn_profile">Profil</span></a>
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
+    <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span>Routine</span></a>
+    <button class="bottom-nav-item bn-train-btn" onclick="openTrainModal()"><span class="bn-icon">⚡</span><span>Train</span></button>
+    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Analytics</span></a>
+    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profil</span></a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
