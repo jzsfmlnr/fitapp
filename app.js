@@ -1951,8 +1951,8 @@ const WORKOUT_TYPE_TAGS = {
   push:    ['schulter', 'trizeps', 'brust'],
   pull:    ['ruecken', 'bizeps', 'schulter', 'unterarm'],
   arms:    ['bizeps', 'trizeps', 'schulter', 'unterarm'],
-  upper_b: ['ruecken', 'brust', 'schulter', 'trizeps', 'bizeps', 'unterarm', 'bauch'],
-  lower_b: ['beine', 'bauch'],
+  upper_body: ['ruecken', 'brust', 'schulter', 'trizeps', 'bizeps', 'unterarm', 'bauch'],
+  lower_body: ['beine', 'bauch'],
   legs:    ['beine', 'bauch'],
 };
 const WORKOUT_TYPE_LABELS = { push:'Push', pull:'Pull', arms:'Arms', upper_b:'Upper Body', lower_b:'Lower Body', legs:'Legs' };
@@ -1968,8 +1968,8 @@ const CAROUSEL_ITEMS = [
   { type: 'pull',    label: 'Pull',    icon: '⬇️',  sub: 'Back · Biceps' },
   { type: 'push',    label: 'Push',    icon: '⬆️',  sub: 'Chest · Triceps' },
   { type: 'arms',    label: 'Arms',    icon: '💪',  sub: 'Biceps · Triceps' },
-  { type: 'upper_b', label: 'Upper B', icon: '🏋️', sub: 'Full Upper Body' },
-  { type: 'lower_b', label: 'Lower B', icon: '🦵',  sub: 'Legs · Abs' },
+  { type: 'upper_body', label: 'Upper Body', icon: '🏋️', sub: 'Full Upper Body' },
+  { type: 'lower_body', label: 'Lower Body', icon: '🦵',  sub: 'Legs · Abs' },
   { type: 'legs',    label: 'Legs',    icon: '🏃',  sub: 'Quads · Hamstrings' },
 ];
 let carouselIndex = 0;
@@ -2000,7 +2000,7 @@ function renderWorkoutTypeSelection() {
       <div class="train-hero-sub">Choose your Workout:</div>
     </div>
     <div class="carousel-3d-outer">
-      <button class="carousel-nav-btn" onclick="rotateCarousel(-1)">&#8249;</button>
+      
       <div class="carousel-3d-scene" id="carousel-scene">
         <div class="carousel-3d-track" id="carousel-track">
           ${CAROUSEL_ITEMS.map((item, i) => `
@@ -2014,7 +2014,7 @@ function renderWorkoutTypeSelection() {
           `).join('')}
         </div>
       </div>
-      <button class="carousel-nav-btn" onclick="rotateCarousel(1)">&#8250;</button>
+
     </div>
     <div class="carousel-dots" id="carousel-dots">
       ${CAROUSEL_ITEMS.map((_, i) => `<div class="carousel-dot${i === 0 ? ' active' : ''}" onclick="rotateCarouselTo(${i})"></div>`).join('')}
@@ -2881,37 +2881,58 @@ function renderWeeklyChart(user, logs) {
   const svg = document.getElementById('analytics-chart-svg');
   if (!svg) return;
   const year = analyticsYear, month = analyticsMonth;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month, daysInMonth);
+
+  // Start from Monday of the week that contains the 1st of the month
+  const dow = firstDay.getDay(); // 0=Sun, 1=Mon…
+  const daysFromMon = dow === 0 ? 6 : dow - 1;
+  const cursor = new Date(firstDay);
+  cursor.setDate(cursor.getDate() - daysFromMon);
+
   const weeks = [];
-  [0,1,2,3,4].forEach(w => {
-    const start = w * 7 + 1;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    if (start > daysInMonth) return;
-    const end = Math.min(start + 6, daysInMonth);
+  while (cursor <= lastDay) {
+    const wStart = new Date(cursor);
+    const wEnd   = new Date(cursor); wEnd.setDate(wEnd.getDate() + 6);
+    // Clamp to month boundaries for label & counting
+    const dayFrom = wStart.getMonth() === month ? wStart.getDate() : 1;
+    const dayTo   = wEnd.getMonth()   === month ? wEnd.getDate()   : daysInMonth;
     const count = logs.filter(l => {
       const d = new Date(l.logged_at);
-      return d.getMonth() === month && d.getFullYear() === year && d.getDate() >= start && d.getDate() <= end;
+      if (d.getMonth() !== month || d.getFullYear() !== year) return false;
+      const day = d.getDate();
+      return day >= dayFrom && day <= dayTo;
     }).length;
-    weeks.push({ label: `Week ${w+1}`, count });
-  });
+    weeks.push({ label: `${dayFrom}–${dayTo}`, count });
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  const n = weeks.length;
   const maxCount = Math.max(...weeks.map(w => w.count), 1);
-  const W = 300, H = 150, PAD = 40;
-  const xStep = (W - PAD * 2) / Math.max(weeks.length - 1, 1);
+  // Widen chart proportionally so labels never overlap
+  const W = Math.max(300, n * 54 + 40);
+  const H = 150, PAD = 32;
+  const xStep = (W - PAD * 2) / Math.max(n - 1, 1);
+  const lblSize = n >= 6 ? 7 : 8;
+
   const points = weeks.map((w, i) => ({
     x: PAD + i * xStep,
     y: H - PAD - (w.count / maxCount) * (H - PAD * 2),
     count: w.count,
     label: w.label
   }));
+
   let paths = '';
   for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i], p2 = points[i+1];
+    const p1 = points[i], p2 = points[i + 1];
     const color = p2.count > p1.count ? '#36B37E' : p2.count < p1.count ? '#E74C3C' : '#1a6fff';
-    paths += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="3" stroke-linecap="round"/>`;
+    paths += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
   }
   const dots = points.map(p => `
-    <circle cx="${p.x}" cy="${p.y}" r="6" fill="#050d1f" stroke="#1a6fff" stroke-width="2"/>
-    <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" fill="#e8edf5" font-size="11" font-weight="bold">${p.count}</text>
-    <text x="${p.x}" y="${H - 8}" text-anchor="middle" fill="#7a84a0" font-size="9">${p.label}</text>
+    <circle cx="${p.x}" cy="${p.y}" r="5" fill="#050d1f" stroke="#1a6fff" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" fill="#e8edf5" font-size="10" font-weight="bold">${p.count}</text>
+    <text x="${p.x}" y="${H - 5}" text-anchor="middle" fill="#7a84a0" font-size="${lblSize}">${p.label}</text>
   `).join('');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.innerHTML = paths + dots;
