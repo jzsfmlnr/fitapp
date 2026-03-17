@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FitMol</title>
+    <title>FitMol – Train</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <nav class="navbar">
       <a href="home.html" class="navbar-brand">⚡ FitMol</a>
       <div class="navbar-nav">
-        <a href="exercises.html" class="nav-link" data-i18n="nav_exercises">Exercises</a>
-        <a href="training.html" class="nav-link" data-i18n="nav_training">Training</a>
-        <a href="plan.html" class="nav-link" data-i18n="nav_plan">Plan</a>
+        <a href="exercises.html" class="nav-link">Exercises</a>
+        <a href="training.html" class="nav-link">Training</a>
+        <a href="plan.html" class="nav-link">Plan</a>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="nav-tool-wrap" id="nav-tool-wrap">
@@ -27,19 +27,18 @@
           <div class="navbar-avatar" id="nav-avatar" onclick="toggleAvatarMenu(event)">?</div>
           <div class="avatar-menu" id="avatar-menu">
             <div class="avatar-menu-username" id="nav-username">...</div>
-            <a href="profile.html" class="avatar-menu-item" data-i18n="menu_settings">⚙️ Settings</a>
-            <button class="avatar-menu-item" onclick="openContactModal()" data-i18n="menu_message">✉️ Message</button>
-            <button class="avatar-menu-item avatar-menu-logout" onclick="logout()" data-i18n="menu_logout">🚪 Logout</button>
+            <a href="profile.html" class="avatar-menu-item">⚙️ Settings</a>
+            <button class="avatar-menu-item" onclick="openContactModal()">✉️ Message</button>
+            <button class="avatar-menu-item avatar-menu-logout" onclick="logout()">🚪 Logout</button>
           </div>
         </div>
       </div>
     </nav>
-    <main class="home-content" id="home-week-section">
-    </main>
+    <main class="train-page-content" id="train-page-content"></main>
     <nav class="bottom-nav">
-      <a href="home.html" class="bottom-nav-item active"><span class="bn-icon">🏠</span><span>Home</span></a>
+      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
       <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
-      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span>Train</span></a>
+      <a href="train.html" class="bottom-nav-item bn-train-btn active"><span class="bn-icon">⚡</span><span>Train</span></a>
       <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Diary</span></a>
       <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profile</span></a>
     </nav>

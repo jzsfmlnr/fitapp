@@ -1053,7 +1053,13 @@ async function saveExercise() {
     }
     if (error) throw error;
     closeExerciseModal();
-    await loadExercisePage();
+    if (typeof window._afterExerciseSave === 'function') {
+      const cb = window._afterExerciseSave;
+      window._afterExerciseSave = null;
+      await cb();
+    } else {
+      await loadExercisePage();
+    }
   } catch (e) { showAlert('modal-alert', `${t.err_connection} ${e.message}`); }
   finally { btn.disabled = false; btn.textContent = t.btn_save_exercise; }
 }
@@ -1884,11 +1890,658 @@ function updateTodayWeight() {
   if (log) { log.weight = weight; saveTrainingLogs(user, logs); openTrainModal(); }
 }
 
+// ═══════════════════════════════════════════════════════════════
+//  TRAIN PAGE (Live Workout Tracker)
+// ═══════════════════════════════════════════════════════════════
+
+const WORKOUT_TYPE_TAGS = {
+  push:    ['schulter', 'trizeps', 'brust'],
+  pull:    ['ruecken', 'bizeps', 'schulter', 'unterarm'],
+  arms:    ['bizeps', 'trizeps', 'schulter', 'unterarm'],
+  upper_b: ['ruecken', 'brust', 'schulter', 'trizeps', 'bizeps', 'unterarm', 'bauch'],
+  lower_b: ['beine', 'bauch'],
+  legs:    ['beine', 'bauch'],
+};
+const WORKOUT_TYPE_LABELS = { push:'Push', pull:'Pull', arms:'Arms', upper_b:'Upper Body', lower_b:'Lower Body', legs:'Legs' };
+
+let currentWorkout = null;
+let currentExerciseData = null;
+let currentExerciseSets = [];
+let currentExerciseSuggestions = [];
+let _trainExerciseCache = [];
+
+const CAROUSEL_ITEMS = [
+  { type: 'pull',    label: 'Pull',    icon: '⬇️',  sub: 'Back · Biceps' },
+  { type: 'push',    label: 'Push',    icon: '⬆️',  sub: 'Chest · Triceps' },
+  { type: 'arms',    label: 'Arms',    icon: '💪',  sub: 'Biceps · Triceps' },
+  { type: 'upper_b', label: 'Upper B', icon: '🏋️', sub: 'Full Upper Body' },
+  { type: 'lower_b', label: 'Lower B', icon: '🦵',  sub: 'Legs · Abs' },
+  { type: 'legs',    label: 'Legs',    icon: '🏃',  sub: 'Quads · Hamstrings' },
+];
+let carouselIndex = 0;
+let _carouselDragged = false;
+
+function getWeightSuggestions(lastWeight) {
+  if (!lastWeight || lastWeight <= 0) return [5, 10, 15, 20, 25];
+  const step = lastWeight < 20 ? 1 : lastWeight < 50 ? 2 : 5;
+  return [-2, -1, 0, 1, 2].map(i => Math.max(0.5, parseFloat((lastWeight + i * step).toFixed(1))));
+}
+
+async function loadTrainPage() {
+  const user = guardHome(); if (!user) return;
+  await loadNavbarAvatar(user);
+  injectBmiModal();
+  injectCalorieModal();
+  renderWorkoutTypeSelection();
+}
+
+function renderWorkoutTypeSelection() {
+  const content = document.getElementById('train-page-content');
+  if (!content) return;
+  currentWorkout = null;
+  carouselIndex = 0;
+  content.innerHTML = `
+    <div class="train-hero">
+      <div class="train-hero-sub">Choose your Workout:</div>
+    </div>
+    <div class="carousel-3d-outer">
+      <button class="carousel-nav-btn" onclick="rotateCarousel(-1)">&#8249;</button>
+      <div class="carousel-3d-scene" id="carousel-scene">
+        <div class="carousel-3d-track" id="carousel-track">
+          ${CAROUSEL_ITEMS.map((item, i) => `
+            <div class="carousel-3d-item" id="c3d-${i}">
+              <div class="carousel-card" onclick="onCarouselCardClick(${i})">
+                <div class="carousel-card-icon">${item.icon}</div>
+                <div class="carousel-card-label">${item.label}</div>
+                <div class="carousel-card-sub">${item.sub}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <button class="carousel-nav-btn" onclick="rotateCarousel(1)">&#8250;</button>
+    </div>
+    <div class="carousel-dots" id="carousel-dots">
+      ${CAROUSEL_ITEMS.map((_, i) => `<div class="carousel-dot${i === 0 ? ' active' : ''}" onclick="rotateCarouselTo(${i})"></div>`).join('')}
+    </div>
+    <div class="carousel-select-wrap">
+
+    </div>
+  `;
+  initCarousel3D();
+}
+
+function initCarousel3D() {
+  const n = CAROUSEL_ITEMS.length;
+  const radius = 140;
+  CAROUSEL_ITEMS.forEach((_, i) => {
+    const el = document.getElementById(`c3d-${i}`);
+    if (el) el.style.transform = `rotateY(${i * (360 / n)}deg) translateZ(${radius}px)`;
+  });
+  updateCarousel3D();
+  initCarouselSwipe();
+}
+
+function updateCarousel3D() {
+  const n = CAROUSEL_ITEMS.length;
+  const track = document.getElementById('carousel-track');
+  if (track) track.style.transform = `rotateY(${-carouselIndex * (360 / n)}deg)`;
+  CAROUSEL_ITEMS.forEach((_, i) => {
+    const el = document.getElementById(`c3d-${i}`);
+    if (!el) return;
+    let diff = ((i - carouselIndex) % n + n) % n;
+    if (diff > n / 2) diff = n - diff;
+    el.classList.toggle('active', diff === 0);
+    el.style.opacity = [1, 0.55, 0.2, 0][Math.min(diff, 3)];
+    el.style.pointerEvents = diff <= 1 ? 'auto' : 'none';
+  });
+  const lbl = document.getElementById('carousel-active-label');
+  if (lbl) lbl.textContent = CAROUSEL_ITEMS[carouselIndex].label;
+  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+}
+
+function rotateCarousel(dir) {
+  const n = CAROUSEL_ITEMS.length;
+  carouselIndex = ((carouselIndex + dir) % n + n) % n;
+  updateCarousel3D();
+}
+
+function rotateCarouselTo(i) {
+  carouselIndex = i;
+  updateCarousel3D();
+}
+
+function onCarouselCardClick(i) {
+  if (_carouselDragged) return;
+  if (i !== carouselIndex) {
+    carouselIndex = i;
+    updateCarousel3D();
+  } else {
+    confirmCarouselSelection();
+  }
+}
+
+function confirmCarouselSelection() {
+  selectWorkoutType(CAROUSEL_ITEMS[carouselIndex].type);
+}
+
+function initCarouselSwipe() {
+  const scene = document.getElementById('carousel-scene');
+  if (!scene) return;
+  let startX = 0;
+  scene.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    _carouselDragged = false;
+  }, { passive: true });
+  scene.addEventListener('touchmove', () => { _carouselDragged = true; }, { passive: true });
+  scene.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) { rotateCarousel(dx < 0 ? 1 : -1); _carouselDragged = true; }
+    setTimeout(() => { _carouselDragged = false; }, 80);
+  }, { passive: true });
+  let mx = 0;
+  scene.addEventListener('mousedown', e => { mx = e.clientX; _carouselDragged = false; });
+  scene.addEventListener('mousemove', e => { if (Math.abs(e.clientX - mx) > 5) _carouselDragged = true; });
+  scene.addEventListener('mouseup', e => {
+    const dx = e.clientX - mx;
+    if (Math.abs(dx) > 40) rotateCarousel(dx < 0 ? 1 : -1);
+    setTimeout(() => { _carouselDragged = false; }, 80);
+  });
+}
+
+async function selectWorkoutType(type) {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const min = String(now.getMinutes()).padStart(2,'0');
+  const title = `${WORKOUT_TYPE_LABELS[type]} - ${dd}.${mm}.${yyyy} - ${hh}:${min}`;
+  currentWorkout = { type, title, date: now.toISOString(), exercises: [] };
+  await renderExerciseSelection();
+}
+
+async function renderExerciseSelection() {
+  const user = getSession(); if (!user || !currentWorkout) return;
+  const content = document.getElementById('train-page-content');
+  if (!content) return;
+  content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray)">Loading…</div>`;
+  const { data: exercises } = await db.from('exercises').select('*').eq('username', user);
+  _trainExerciseCache = exercises || [];
+  const tags = WORKOUT_TYPE_TAGS[currentWorkout.type] || [];
+  const grouped = {};
+  tags.forEach(tag => {
+    const matches = _trainExerciseCache.filter(e => e.tag === tag);
+    if (matches.length > 0) grouped[tag] = matches;
+  });
+  const tagNames = { schulter:'Shoulder', ruecken:'Back', bizeps:'Biceps', trizeps:'Triceps', unterarm:'Forearm', beine:'Legs', brust:'Chest', bauch:'Abs', sonstiges:'Other' };
+  let exerciseHtml = Object.keys(grouped).length === 0
+    ? `<div style="text-align:center;padding:40px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:12px">💪</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">No matching exercises found.</div><div style="font-size:13px">Create exercises with the correct muscle groups first.</div></div>`
+    : tags.filter(t => grouped[t]).map(tag => {
+        const tg = getTagInfo(tag);
+        const color = tg ? tg.color : '#7a84a0';
+        const items = grouped[tag];
+        return `
+          <div class="ex-tag-group">
+            <div class="ex-tag-group-header" style="color:${color}">${tagNames[tag] || tag} <span style="opacity:0.5;font-size:13px">(${items.length})</span></div>
+            <div class="ex-tag-group-grid">
+              ${items.map(ex => `
+                <div class="exercise-card-mini train-ex-card" onclick="openTrainExerciseModal('${ex.id}')">
+                  <div class="ex-mini-img">
+                    ${ex.image_data ? `<img src="${ex.image_data}" alt="${ex.name}" />` : `<div class="ex-mini-abbr">${ex.abbreviation || '?'}</div>`}
+                  </div>
+                  <div class="ex-mini-name">${ex.name}</div>
+                </div>`).join('')}
+            </div>
+          </div>`;
+      }).join('');
+  content.innerHTML = `
+    <div class="train-session-header">
+      <div>
+        <div class="train-session-type">${WORKOUT_TYPE_LABELS[currentWorkout.type]}</div>
+        <div class="train-session-title-small">${currentWorkout.title}</div>
+      </div>
+      <button class="btn-finish-workout" onclick="confirmFinishWorkout()">Workout Finished ✓</button>
+    </div>
+    <div id="train-session-log"></div>
+    <div class="train-add-ex-header">
+      <span>Add Exercise</span>
+      <button class="btn-create-ex-inline" onclick="openNewExerciseFromTrain()">+ Create New</button>
+    </div>
+    ${exerciseHtml}
+    <div style="height:100px"></div>
+  `;
+  renderSessionLog();
+}
+
+function renderSessionLog() {
+  const log = document.getElementById('train-session-log');
+  if (!log || !currentWorkout || currentWorkout.exercises.length === 0) {
+    if (log) log.innerHTML = '';
+    return;
+  }
+  log.innerHTML = `
+    <div class="session-log-wrap">
+      <div class="session-log-title">Today's Exercises:</div>
+      ${currentWorkout.exercises.map(ex => `
+        <div class="session-log-item" onclick="openTrainExerciseModal('${ex.id}')">
+          <div>
+            <div class="session-log-name">${ex.name}</div>
+            <div class="session-log-sets">${ex.sets.length} set${ex.sets.length !== 1 ? 's' : ''} · ${ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(', ')}</div>
+          </div>
+          <span class="session-log-edit">✏️</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function openTrainExerciseModal(exerciseId) {
+  const user = getSession(); if (!user) return;
+  const ex = _trainExerciseCache.find(e => e.id === exerciseId);
+  if (!ex) return;
+  currentExerciseData = ex;
+  let lastWeight = null;
+  try {
+    const { data } = await db.from('exercise_last_weights').select('weight').eq('username', user).eq('exercise_id', exerciseId).maybeSingle();
+    if (data) lastWeight = data.weight;
+  } catch (e) { /* ignore */ }
+  currentExerciseSuggestions = getWeightSuggestions(lastWeight);
+  const existing = currentWorkout?.exercises.find(e => e.id === exerciseId);
+  const defaultWeight = lastWeight || currentExerciseSuggestions[2];
+  currentExerciseSets = existing
+    ? existing.sets.map(s => ({...s}))
+    : [
+        { weight: defaultWeight, reps: 8 },
+        { weight: defaultWeight, reps: 8 },
+        { weight: defaultWeight, reps: 8 },
+      ];
+  injectTrainExerciseModal();
+  const m = document.getElementById('train-exercise-modal');
+  if (m) {
+    document.getElementById('train-ex-modal-name').textContent = ex.name;
+    const img = document.getElementById('train-ex-modal-img');
+    if (ex.image_data) { img.src = ex.image_data; img.style.display = 'block'; }
+    else img.style.display = 'none';
+    renderTrainSetRows();
+    m.classList.add('open');
+  }
+}
+
+function injectTrainExerciseModal() {
+  if (document.getElementById('train-exercise-modal')) return;
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="modal-overlay" id="train-exercise-modal">
+      <div class="modal-card" style="max-width:520px;max-height:88vh;display:flex;flex-direction:column">
+        <div class="modal-header" style="flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:12px">
+            <img id="train-ex-modal-img" style="width:40px;height:40px;border-radius:10px;object-fit:cover;display:none" />
+            <div class="modal-title" id="train-ex-modal-name">Exercise</div>
+          </div>
+          <button class="modal-close" onclick="closeTrainExerciseModal()">×</button>
+        </div>
+        <div id="train-sets-container" style="overflow-y:auto;flex:1;padding:0 4px"></div>
+        <div class="train-sets-footer" style="flex-shrink:0">
+          <button class="btn-add-set" onclick="addTrainSet()">+ Add Set</button>
+          <button class="btn-set-finished" onclick="confirmExerciseSets()">Finished ✓</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el.firstElementChild);
+}
+
+function closeTrainExerciseModal() {
+  const m = document.getElementById('train-exercise-modal');
+  if (m) m.classList.remove('open');
+}
+
+function renderTrainSetRows() {
+  const container = document.getElementById('train-sets-container');
+  if (!container) return;
+  container.innerHTML = currentExerciseSets.map((set, i) => {
+    const isCustom = !currentExerciseSuggestions.map(Number).includes(Number(set.weight));
+    return `
+      <div class="train-set-row" id="train-set-row-${i}">
+        <div class="train-set-row-header">
+          <span class="train-set-badge">Set ${i + 1}</span>
+          <button class="train-set-del${currentExerciseSets.length <= 1 ? ' hidden' : ''}" onclick="removeTrainSet(${i})">✕</button>
+        </div>
+        <div class="train-set-weights-label">Weight (kg)</div>
+        <div class="train-set-weight-chips">
+          ${currentExerciseSuggestions.map(w => `
+            <button class="train-weight-chip${Number(set.weight) === Number(w) && !isCustom ? ' selected' : ''}" onclick="setTrainSetWeight(${i}, ${w})">${w}</button>
+          `).join('')}
+          <input class="train-weight-custom" type="number" placeholder="custom" min="0" step="0.5"
+            value="${isCustom && set.weight ? set.weight : ''}"
+            oninput="setTrainSetWeightCustom(${i}, this.value)" />
+        </div>
+        <div class="train-set-weights-label" style="margin-top:10px">Reps</div>
+        <div class="train-set-weight-chips">
+          ${[8, 10, 12, 14, 16].map(r => `
+            <button class="train-weight-chip${set.reps === r ? ' selected' : ''}" onclick="setTrainSetRepsBtn(${i}, ${r})">${r}</button>
+          `).join('')}
+          <input class="train-weight-custom" type="number" placeholder="custom" min="1" max="999"
+            value="${![8,10,12,14,16].includes(set.reps) && set.reps ? set.reps : ''}"
+            oninput="setTrainSetRepsCustom(${i}, this.value)" />
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function setTrainSetWeight(i, w) {
+  currentExerciseSets[i].weight = w;
+  const row = document.getElementById(`train-set-row-${i}`);
+  if (!row) return;
+  row.querySelectorAll('.train-weight-chip').forEach(c => {
+    c.classList.toggle('selected', parseFloat(c.textContent) === w);
+  });
+  const customInput = row.querySelector('.train-weight-custom');
+  if (customInput) customInput.value = '';
+}
+
+function setTrainSetWeightCustom(i, val) {
+  const w = parseFloat(val);
+  if (!isNaN(w) && w > 0) {
+    currentExerciseSets[i].weight = w;
+    const row = document.getElementById(`train-set-row-${i}`);
+    if (row) row.querySelectorAll('.train-weight-chip').forEach(c => c.classList.remove('selected'));
+  }
+}
+
+function setTrainSetRepsBtn(i, r) {
+  currentExerciseSets[i].reps = r;
+  const row = document.getElementById(`train-set-row-${i}`);
+  if (!row) return;
+  row.querySelectorAll('.train-set-reps-chip').forEach(c => {
+    c.classList.toggle('selected', parseInt(c.textContent) === r);
+  });
+  const customInput = row.querySelector('.train-set-reps-custom');
+  if (customInput) customInput.value = '';
+}
+
+function setTrainSetRepsCustom(i, val) {
+  const r = parseInt(val);
+  if (!isNaN(r) && r > 0) {
+    currentExerciseSets[i].reps = r;
+    const row = document.getElementById(`train-set-row-${i}`);
+    if (row) row.querySelectorAll('.train-set-reps-chip').forEach(c => c.classList.remove('selected'));
+  }
+}
+
+function addTrainSet() {
+  const last = currentExerciseSets[currentExerciseSets.length - 1];
+  currentExerciseSets.push({ weight: last ? last.weight : currentExerciseSuggestions[2], reps: last ? last.reps : 8 });
+  renderTrainSetRows();
+}
+
+function removeTrainSet(i) {
+  if (currentExerciseSets.length <= 1) return;
+  currentExerciseSets.forEach((s, idx) => {
+    const row = document.getElementById(`train-set-row-${idx}`);
+    if (row) {
+      const customWeight = row.querySelector('.train-weight-custom');
+      if (customWeight && customWeight.value) s.weight = parseFloat(customWeight.value) || s.weight;
+      const customReps = row.querySelector('.train-set-reps-custom');
+      if (customReps && customReps.value) s.reps = parseInt(customReps.value) || s.reps;
+    }
+  });
+  currentExerciseSets.splice(i, 1);
+  renderTrainSetRows();
+}
+
+function confirmExerciseSets() {
+  const user = getSession(); if (!user) return;
+  if (!currentWorkout || !currentExerciseData) return;
+  const sets = currentExerciseSets.map((s, i) => {
+    const row = document.getElementById(`train-set-row-${i}`);
+    let weight = s.weight;
+    let reps = s.reps;
+    if (row) {
+      const customInput = row.querySelector('.train-weight-custom');
+      if (customInput && customInput.value) weight = parseFloat(customInput.value) || weight;
+      const customReps = row.querySelector('.train-set-reps-custom');
+      if (customReps && customReps.value) reps = parseInt(customReps.value) || reps;
+    }
+    return { weight: weight || 0, reps: reps || 1 };
+  });
+  if (sets.some(s => !s.weight || s.weight <= 0)) {
+    alert('Please select a weight for all sets.');
+    return;
+  }
+  const idx = currentWorkout.exercises.findIndex(e => e.id === currentExerciseData.id);
+  const entry = { id: currentExerciseData.id, name: currentExerciseData.name, abbreviation: currentExerciseData.abbreviation, image_data: currentExerciseData.image_data, tag: currentExerciseData.tag, sets };
+  if (idx >= 0) currentWorkout.exercises[idx] = entry;
+  else currentWorkout.exercises.push(entry);
+  if (sets.length > 0 && sets[0].weight > 0) {
+    db.from('exercise_last_weights').upsert(
+      { username: user, exercise_id: currentExerciseData.id, weight: sets[0].weight },
+      { onConflict: 'username,exercise_id' }
+    ).then(() => {}).catch(() => {});
+  }
+  closeTrainExerciseModal();
+  renderSessionLog();
+}
+
+function openNewExerciseFromTrain() {
+  if (!currentWorkout) return;
+  window._afterExerciseSave = async () => {
+    const user = getSession();
+    if (user) {
+      const { data: exercises } = await db.from('exercises').select('*').eq('username', user);
+      _trainExerciseCache = exercises || [];
+    }
+    await renderExerciseSelection();
+  };
+  openExerciseModal(null);
+}
+
+async function confirmFinishWorkout() {
+  const user = getSession(); if (!user) return;
+  if (!currentWorkout) return;
+  if (currentWorkout.exercises.length === 0) {
+    alert('Please add at least one exercise before finishing the workout.');
+    return;
+  }
+  if (!confirm('Finish this workout and save it?')) return;
+  try {
+    const { error } = await db.from('workout_sessions').insert({
+      username: user,
+      type: currentWorkout.type,
+      title: currentWorkout.title,
+      exercises: currentWorkout.exercises,
+      created_at: currentWorkout.date,
+    });
+    if (error) throw error;
+  } catch (e) {
+    alert('Error saving workout. Please try again.');
+    return;
+  }
+  currentWorkout = null;
+  const content = document.getElementById('train-page-content');
+  if (content) content.innerHTML = `
+    <div class="train-finish-screen">
+      <div style="font-size:72px;margin-bottom:20px">💪</div>
+      <h2 class="train-finish-title">Workout Complete!</h2>
+      <p class="train-finish-sub">Great job! Your workout has been saved.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:280px;margin:0 auto">
+        <button class="btn btn-primary" onclick="renderWorkoutTypeSelection()">Start New Workout</button>
+        <a href="home.html" class="btn btn-outline" style="text-align:center;text-decoration:none">← Back to Home</a>
+      </div>
+    </div>
+  `;
+}
+
+// ── Weigh-in Storage ──────────────────────────────────────────
+function getWeighIns(username) {
+  try { return JSON.parse(localStorage.getItem(`fitmol_weighins_${username}`) || '[]'); }
+  catch { return []; }
+}
+function saveWeighIns(username, data) {
+  localStorage.setItem(`fitmol_weighins_${username}`, JSON.stringify(data));
+}
+
+// ── Weigh-in Modal ────────────────────────────────────────────
+function injectWeighInModal() {
+  if (document.getElementById('weighin-modal')) return;
+  const weights = [];
+  for (let w = 65; w <= 110; w += 0.5) weights.push(w);
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="modal-overlay" id="weighin-modal">
+      <div class="modal-card" style="max-width:360px">
+        <div class="modal-header">
+          <div class="modal-title">⚖️ Weigh-in</div>
+          <button class="modal-close" onclick="closeWeighInModal()">×</button>
+        </div>
+        <div style="padding:4px 0 8px">
+          <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:8px">Gewicht (kg)</label>
+          <select id="weighin-kg-select" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:16px;outline:none">
+            ${weights.map(w => `<option value="${w}">${w} kg</option>`).join('')}
+          </select>
+          <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-top:16px;margin-bottom:8px">Uhrzeit</label>
+          <input type="time" id="weighin-time-input" value="${timeStr}" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:16px;outline:none" />
+          <button onclick="confirmWeighIn()" style="margin-top:20px;width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--blue);color:#fff;font-weight:700;font-size:16px;cursor:pointer">Speichern ✓</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el.firstElementChild);
+}
+
+function openWeighInModal() {
+  const user = getSession(); if (!user) return;
+  injectWeighInModal();
+  const today = getTodayKey();
+  const weighins = getWeighIns(user);
+  const existing = weighins.find(w => w.date === today);
+  if (existing) {
+    const sel = document.getElementById('weighin-kg-select');
+    if (sel) sel.value = existing.weight;
+    const timeInput = document.getElementById('weighin-time-input');
+    if (timeInput && existing.time) timeInput.value = existing.time;
+  }
+  document.getElementById('weighin-modal').classList.add('open');
+}
+
+function closeWeighInModal() {
+  const m = document.getElementById('weighin-modal');
+  if (m) m.classList.remove('open');
+}
+
+function confirmWeighIn() {
+  const user = getSession(); if (!user) return;
+  const weight = parseFloat(document.getElementById('weighin-kg-select').value);
+  const time = document.getElementById('weighin-time-input').value;
+  const today = getTodayKey();
+  const weighins = getWeighIns(user);
+  const idx = weighins.findIndex(w => w.date === today);
+  if (idx >= 0) weighins[idx] = { date: today, weight, time };
+  else weighins.push({ date: today, weight, time });
+  saveWeighIns(user, weighins);
+  closeWeighInModal();
+  loadHomePage();
+}
+
+// ── Workout Done Modal ────────────────────────────────────────
+function injectWorkoutDoneModal() {
+  if (document.getElementById('workout-done-modal')) return;
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="modal-overlay" id="workout-done-modal">
+      <div class="modal-card" style="max-width:500px">
+        <div class="modal-header">
+          <div class="modal-title">🏋️ Workout done?</div>
+          <button class="modal-close" onclick="closeWorkoutDoneModal()">×</button>
+        </div>
+        <div id="workout-done-modal-body"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(el.firstElementChild);
+}
+
+async function openWorkoutDoneModal() {
+  injectWorkoutDoneModal();
+  const user = getSession(); if (!user) return;
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const today = getTodayKey();
+  const logs = getTrainingLogs(user);
+  const todayLog = logs.find(l => l.logged_at && getLocalDateKey(l.logged_at) === today);
+  const { data: trainings } = await db.from('trainings').select('id,title').eq('username', user).order('created_at', { ascending: false });
+  const list = trainings || [];
+  const body = document.getElementById('workout-done-modal-body');
+  const selectHtml = list.length > 0 ? `
+    <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:8px">Training auswählen:</label>
+    <select id="workout-done-select" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:15px;outline:none;margin-bottom:16px">
+      ${list.map(tr => `<option value="${tr.id}" data-title="${tr.title.replace(/"/g,'&quot;')}">${tr.title}</option>`).join('')}
+    </select>
+    <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:8px">Uhrzeit</label>
+    <input type="time" id="workout-done-time" value="${timeStr}" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:16px;outline:none;margin-bottom:20px" />
+    <button onclick="confirmWorkoutDone()" style="width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--blue);color:#fff;font-weight:700;font-size:16px;cursor:pointer">Speichern ✓</button>
+  ` : `<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">Noch keine Trainings. <a href="training.html" style="color:var(--blue)">Erstellen →</a></p>`;
+  if (todayLog) {
+    const t = new Date(todayLog.logged_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    body.innerHTML = `
+      <div class="train-today-banner" style="margin-bottom:16px">
+        <div class="train-today-check">✅</div>
+        <div class="train-today-title">${todayLog.title}</div>
+        <div class="train-today-time">${t} Uhr</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--gray);margin-bottom:12px">Anderes Training wählen:</div>
+      ${selectHtml}`;
+  } else {
+    body.innerHTML = `<div class="train-not-today">Noch kein Workout heute 💤</div>${selectHtml}`;
+  }
+  document.getElementById('workout-done-modal').classList.add('open');
+}
+
+function closeWorkoutDoneModal() {
+  const m = document.getElementById('workout-done-modal');
+  if (m) m.classList.remove('open');
+}
+
+function confirmWorkoutDone() {
+  const user = getSession(); if (!user) return;
+  const sel = document.getElementById('workout-done-select');
+  if (!sel) return;
+  const trainingId = sel.value;
+  const title = sel.options[sel.selectedIndex].dataset.title || sel.options[sel.selectedIndex].text;
+  const timeVal = document.getElementById('workout-done-time').value || '';
+  const today = getTodayKey();
+  const logs = getTrainingLogs(user);
+  const filtered = logs.filter(l => !l.logged_at || getLocalDateKey(l.logged_at) !== today);
+  let loggedAt;
+  if (timeVal) {
+    const [h, m] = timeVal.split(':').map(Number);
+    const d = new Date(); d.setHours(h, m, 0, 0);
+    loggedAt = d.toISOString();
+  } else {
+    loggedAt = new Date().toISOString();
+  }
+  filtered.push({ training_id: trainingId, title, logged_at: loggedAt, weight: null });
+  saveTrainingLogs(user, filtered);
+  closeWorkoutDoneModal();
+  loadHomePage();
+}
+
+// ── Combined logs helper ───────────────────────────────────────
+async function getCombinedLogs(username) {
+  const local = getTrainingLogs(username);
+  let sessions = [];
+  try {
+    const { data } = await db.from('workout_sessions').select('title,created_at,exercises,type').eq('username', username);
+    if (data) sessions = data.map(s => ({ title: s.title, logged_at: s.created_at, exercises: s.exercises || [], type: s.type, _isSession: true }));
+  } catch(e) {}
+  return [...local, ...sessions];
+}
+
 // ── Home Page ─────────────────────────────────────────────────
 async function loadHomePage() {
   const user = guardHome(); if (!user) return;
   await loadNavbarAvatar(user);
-  const logs = getTrainingLogs(user);
+  const logs = await getCombinedLogs(user);
   const weekStart = getWeekStart();
   const today = new Date(); today.setHours(23,59,59,999);
   const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6); weekEnd.setHours(23,59,59,999);
@@ -1910,6 +2563,12 @@ async function loadHomePage() {
     dots.push({ day, trained, isPast });
   }
   const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const weighins = getWeighIns(user);
+  const todayWeighIn = weighins.find(w => w.date === getTodayKey());
+  const weighInLabel = todayWeighIn ? `⚖️ ${todayWeighIn.weight} kg` : '⚖️ Weigh-in';
+  const logs2 = getTrainingLogs(user);
+  const todayWorkoutLog = logs2.find(l => l.logged_at && getLocalDateKey(l.logged_at) === getTodayKey());
+  const workoutLabel = todayWorkoutLog ? `✅ ${todayWorkoutLog.title}` : '🏋️ Workout done?';
   const main = document.querySelector('main.home-content');
   main.innerHTML = `
     <div class="home-week-count">
@@ -1922,6 +2581,10 @@ async function loadHomePage() {
             <span style="font-size:10px;color:var(--gray)">${dayNames[i]}</span>
           </div>`).join('')}
       </div>
+    </div>
+    <div class="home-quick-actions">
+      <button class="home-quick-btn ${todayWeighIn ? 'home-quick-btn-done' : ''}" onclick="openWeighInModal()">${weighInLabel}</button>
+      <button class="home-quick-btn ${todayWorkoutLog ? 'home-quick-btn-done' : ''}" onclick="openWorkoutDoneModal()">${workoutLabel}</button>
     </div>
   `;
 }
@@ -1936,13 +2599,14 @@ function switchDiaryTab(tab) {
   if (tab === 'progress') renderProgressChart();
 }
 
-function loadDiaryTrainings() {
+async function loadDiaryTrainings() {
   const user = getSession(); if (!user) return;
-  const logs = getTrainingLogs(user);
   const container = document.getElementById('diary-trainings-list');
   if (!container) return;
+  container.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">Loading…</p>';
+  const logs = await getCombinedLogs(user);
   if (logs.length === 0) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">Noch keine Trainings geloggt.</p>';
+    container.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">No trainings logged yet.</p>';
     return;
   }
   const sorted = [...logs].sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at));
@@ -1950,6 +2614,23 @@ function loadDiaryTrainings() {
     const d = new Date(l.logged_at);
     const dateStr = d.toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     const timeStr = d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    if (l._isSession) {
+      const exercises = Array.isArray(l.exercises) ? l.exercises : [];
+      const exHtml = exercises.map(ex => {
+        const setsStr = Array.isArray(ex.sets) ? ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(', ') : '';
+        return `<div class="diary-log-exercise">💪 ${ex.name}${setsStr ? ` — ${setsStr}` : ''}</div>`;
+      }).join('');
+      return `<div class="diary-log-item">
+        <div style="flex:1;min-width:0">
+          <div class="diary-log-title">🏋️ ${l.title}</div>
+          ${exHtml}
+        </div>
+        <div style="text-align:right;flex-shrink:0;padding-left:10px">
+          <div class="diary-log-date">${dateStr}</div>
+          <div class="diary-log-date">${timeStr} Uhr</div>
+        </div>
+      </div>`;
+    }
     const weightStr = l.weight ? `<div class="diary-log-weight">⚖️ ${l.weight} kg</div>` : '';
     return `<div class="diary-log-item">
       <div>
@@ -2019,12 +2700,14 @@ function renderProgressChart() {
   svg.innerHTML = paths + dots;
 }
 
+let _analyticsAllLogs = [];
+
 async function loadAnalyticsPage() {
   const user = guardHome(); if (!user) return;
   await loadNavbarAvatar(user);
-  const logs = getTrainingLogs(user);
-  renderAnalyticsCalendar(user, logs);
-  renderWeeklyChart(user, logs);
+  _analyticsAllLogs = await getCombinedLogs(user);
+  renderAnalyticsCalendar(user, _analyticsAllLogs);
+  renderWeeklyChart(user, _analyticsAllLogs);
 }
 
 let analyticsMonth = new Date().getMonth();
@@ -2065,9 +2748,8 @@ function changeAnalyticsMonth(delta) {
   if (analyticsMonth < 0) { analyticsMonth = 11; analyticsYear--; }
   if (analyticsMonth > 11) { analyticsMonth = 0; analyticsYear++; }
   const user = getSession(); if (!user) return;
-  const logs = getTrainingLogs(user);
-  renderAnalyticsCalendar(user, logs);
-  renderWeeklyChart(user, logs);
+  renderAnalyticsCalendar(user, _analyticsAllLogs);
+  renderWeeklyChart(user, _analyticsAllLogs);
 }
 
 function renderWeeklyChart(user, logs) {
@@ -2124,7 +2806,10 @@ function renderWeeklyChart(user, logs) {
 
   const user = guardHome(); if (!user) return;
 
-  if (document.getElementById('home-week-section')) {
+  if (document.getElementById('train-page-content')) {
+    // Train page
+    loadTrainPage();
+  } else if (document.getElementById('home-week-section')) {
     // Home page
     loadHomePage();
   } else if (document.getElementById('analytics-calendar')) {

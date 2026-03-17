@@ -2261,6 +2261,7 @@ select.form-select option {
 .diary-log-date { font-size: 12px; color: var(--gray); }
 .diary-log-title { font-size: 14px; font-weight: 700; }
 .diary-log-weight { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.diary-log-exercise { font-size: 11px; color: var(--gray); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
 
 /* ========== TRAIN MODAL ========== */
 .train-modal-date { font-size: 18px; font-weight: 700; color: var(--gray); text-align: center; margin-bottom: 24px; }
@@ -2281,6 +2282,10 @@ select.form-select option {
 .week-dot { width: 14px; height: 14px; border-radius: 50%; }
 .week-dot-active { background: #36B37E; }
 .week-dot-inactive { background: var(--card-2); border: 1px solid var(--border); }
+.home-quick-actions { display: flex; gap: 12px; justify-content: center; padding: 0 20px 32px; }
+.home-quick-btn { flex: 1; max-width: 200px; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); color: var(--black); font-size: 14px; font-weight: 700; cursor: pointer; transition: border-color 0.2s, background 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-quick-btn:hover { border-color: var(--blue); background: var(--blue-light); }
+.home-quick-btn-done { border-color: #36B37E !important; background: rgba(54,179,126,0.12) !important; color: #36B37E !important; }
 
 /* ========== PARTICLE CANVAS ========== */
 #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
@@ -2352,3 +2357,164 @@ select.form-select option {
   /* Modal compact */
   .modal-card { padding: 28px 20px; }
 }
+
+/* ========== TRAIN PAGE ========== */
+.train-page-content {
+  padding: 60px 16px 100px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.train-hero { text-align: center; padding: 48px 20px 32px; }
+.train-hero-title { font-size: clamp(36px, 10vw, 52px); font-weight: 900; color: var(--blue); line-height: 1.1; margin-bottom: 10px; }
+.train-hero-sub { font-size: 18px; font-weight: 600; color: var(--gray); }
+.workout-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 4px 32px; }
+.workout-type-btn { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--black); font-size: 17px; font-weight: 800; padding: 22px 8px; cursor: pointer; transition: all 0.18s; font-family: inherit; }
+.workout-type-btn:hover { border-color: var(--blue); background: var(--blue-light); color: var(--blue); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(26,111,255,0.2); }
+.train-session-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 16px; gap: 12px; }
+.train-session-type { font-size: 22px; font-weight: 900; }
+.train-session-title-small { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.btn-finish-workout { background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; flex-shrink: 0; }
+.session-log-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 16px; overflow: hidden; }
+.session-log-title { font-size: 10px; font-weight: 700; color: var(--gray); padding: 10px 14px 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.session-log-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; cursor: pointer; border-top: 1px solid var(--border); transition: background 0.15s; }
+.session-log-item:hover { background: var(--card-2); }
+.session-log-name { font-size: 14px; font-weight: 700; }
+.session-log-sets { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.session-log-edit { font-size: 14px; opacity: 0.45; }
+.train-add-ex-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 12px; font-size: 15px; font-weight: 700; color: var(--gray); }
+.btn-create-ex-inline { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--blue); font-size: 12px; font-weight: 700; padding: 6px 12px; cursor: pointer; font-family: inherit; }
+.train-ex-card { cursor: pointer !important; }
+.train-ex-card .ex-mini-actions { display: none !important; }
+.train-ex-card:hover { border-color: var(--blue) !important; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(26,111,255,0.2); }
+/* Train sets modal */
+.train-set-row { border-bottom: 1px solid var(--border); padding: 14px 0 12px; }
+.train-set-row:last-child { border-bottom: none; }
+.train-set-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.train-set-badge { font-size: 13px; font-weight: 800; color: var(--blue); }
+.train-set-del { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--gray); font-size: 12px; padding: 4px 8px; cursor: pointer; font-family: inherit; }
+.train-set-del.hidden { visibility: hidden; }
+.train-set-del:hover { border-color: var(--red); color: var(--red); }
+.train-set-weights-label { font-size: 11px; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
+.train-set-weight-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.train-weight-chip { background: var(--card-2); border: 1.5px solid var(--border); border-radius: 8px; color: var(--black); font-size: 14px; font-weight: 700; padding: 8px 12px; cursor: pointer; font-family: inherit; transition: all 0.15s; min-width: 46px; text-align: center; }
+.train-weight-chip:hover { border-color: var(--blue); }
+.train-weight-chip.selected { background: var(--blue); border-color: var(--blue); color: #fff; }
+.train-weight-custom { background: var(--card-2); border: 1.5px dashed var(--border); border-radius: 8px; color: var(--black); font-size: 14px; font-weight: 700; padding: 8px 10px; width: 76px; text-align: center; outline: none; font-family: inherit; }
+.train-weight-custom:focus { border-color: var(--blue); border-style: solid; }
+.train-set-reps-row { display: flex; align-items: center; gap: 10px; }
+.train-set-reps-label { font-size: 11px; font-weight: 600; color: var(--gray); }
+.train-set-reps-input { background: var(--card-2); border: 1.5px solid var(--border); border-radius: 8px; color: var(--black); font-size: 16px; font-weight: 700; padding: 8px 12px; width: 72px; text-align: center; outline: none; font-family: inherit; }
+.train-set-reps-input:focus { border-color: var(--blue); }
+.train-sets-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 4px; gap: 12px; border-top: 1px solid var(--border); }
+.btn-add-set { background: var(--card-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--blue); font-size: 14px; font-weight: 700; padding: 12px 20px; cursor: pointer; font-family: inherit; }
+.btn-set-finished { background: var(--green); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 15px; font-weight: 800; padding: 12px 24px; cursor: pointer; font-family: inherit; }
+.train-finish-screen { text-align: center; padding: 80px 20px 40px; }
+.train-finish-title { font-size: 32px; font-weight: 900; color: var(--green); margin-bottom: 12px; }
+.train-finish-sub { color: var(--gray); font-size: 16px; margin-bottom: 40px; }
+
+/* ========== 3D CAROUSEL ========== */
+.carousel-3d-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 0 20px;
+}
+.carousel-3d-scene {
+  perspective: 820px;
+  width: 230px;
+  height: 165px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.carousel-3d-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.carousel-3d-item {
+  position: absolute;
+  width: 150px;
+  height: 120px;
+  left: calc(50% - 75px);
+  top: calc(50% - 60px);
+  transition: opacity 0.5s ease;
+  cursor: pointer;
+}
+.carousel-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: border-color 0.4s, box-shadow 0.4s, background 0.4s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.carousel-card-icon { font-size: 34px; line-height: 1; }
+.carousel-card-label { font-size: 19px; font-weight: 900; color: var(--black); letter-spacing: 0.01em; line-height: 1; }
+.carousel-card-sub { font-size: 10px; font-weight: 600; color: var(--gray); letter-spacing: 0.03em; }
+.carousel-3d-item.active .carousel-card {
+  background: linear-gradient(145deg, rgba(26,111,255,0.18) 0%, var(--card) 100%);
+  border-color: var(--blue);
+  border-width: 2px;
+  box-shadow: 0 0 28px rgba(26,111,255,0.55), 0 0 56px rgba(26,111,255,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.carousel-3d-item.active .carousel-card-label { color: #fff; }
+.carousel-3d-item.active .carousel-card-sub { color: rgba(255,255,255,0.55); }
+.carousel-nav-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--black);
+  font-size: 30px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding-bottom: 2px;
+}
+.carousel-nav-btn:hover { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 16px rgba(26,111,255,0.45); }
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.carousel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.carousel-dot.active { background: var(--blue); transform: scale(1.4); box-shadow: 0 0 6px rgba(26,111,255,0.6); }
+.carousel-select-wrap { display: flex; justify-content: center; padding: 16px 20px 32px; }
+.carousel-select-btn {
+  background: var(--blue);
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  padding: 16px 40px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 28px rgba(26,111,255,0.45);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.carousel-select-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(26,111,255,0.55); }
