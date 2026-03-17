@@ -73,6 +73,7 @@
           <div class="tab-bar" style="margin-bottom:12px">
             <button class="tab-btn active" id="img-tab-upload" onclick="switchImgTab('upload')">📁 Upload</button>
             <button class="tab-btn" id="img-tab-camera" onclick="switchImgTab('camera')">📷 Camera</button>
+            <button class="tab-btn" id="img-tab-ai" onclick="switchImgTab('ai')">✨ AI</button>
           </div>
           <div id="img-panel-upload">
             <div class="img-picker-preview" onclick="document.getElementById('ex-img-file').click()">
@@ -88,6 +89,16 @@
               <button class="btn btn-outline" style="width:auto;padding:10px 20px" onclick="stopCamera()">Cancel</button>
             </div>
             <img id="camera-preview-img" src="" style="display:none;width:100%;border-radius:12px;margin-top:10px" />
+          </div>
+          <div id="img-panel-ai" style="display:none">
+            <div style="text-align:center;padding:8px 0 12px">
+              <button class="btn btn-primary" id="ai-generate-btn" onclick="generateExerciseImageAI()" style="width:auto;padding:10px 24px">✨ Generate Image</button>
+              <div id="ai-status" style="color:var(--gray);font-size:13px;margin-top:8px;min-height:18px"></div>
+            </div>
+            <div class="img-picker-preview" style="cursor:default;position:relative">
+              <img id="ai-preview-img" src="" style="display:none;width:100%;border-radius:12px" />
+              <div class="img-picker-placeholder" id="ai-placeholder"><div style="font-size:32px">✨</div><div>Enter a name, then generate</div></div>
+            </div>
           </div>
         </div>
         <button class="btn btn-primary" id="modal-save-btn" onclick="saveExercise()">Save Exercise</button>

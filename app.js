@@ -979,8 +979,12 @@ function closeExerciseModal() {
 function switchImgTab(tab) {
   document.getElementById('img-panel-upload').style.display = tab === 'upload' ? '' : 'none';
   document.getElementById('img-panel-camera').style.display = tab === 'camera' ? '' : 'none';
+  const aiPanel = document.getElementById('img-panel-ai');
+  if (aiPanel) aiPanel.style.display = tab === 'ai' ? '' : 'none';
   document.getElementById('img-tab-upload').classList.toggle('active', tab === 'upload');
   document.getElementById('img-tab-camera').classList.toggle('active', tab === 'camera');
+  const aiTab = document.getElementById('img-tab-ai');
+  if (aiTab) aiTab.classList.toggle('active', tab === 'ai');
   if (tab === 'camera') startCamera();
   else stopCamera();
 }
@@ -1032,6 +1036,48 @@ async function capturePhoto() {
   stopCamera();
 }
 
+async function generateExerciseImageAI() {
+  const name = (document.getElementById('ex-name')?.value || '').trim();
+  if (!name) { alert('Please enter an exercise name first.'); return; }
+  const btn = document.getElementById('ai-generate-btn');
+  const status = document.getElementById('ai-status');
+  const previewImg = document.getElementById('ai-preview-img');
+  const placeholder = document.getElementById('ai-placeholder');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Generating… this may take 15–30 seconds';
+  if (placeholder) placeholder.innerHTML = '<div style="font-size:32px">⏳</div><div>Generating…</div>';
+  if (previewImg) previewImg.style.display = 'none';
+  const prompt = `Minimalist anatomical fitness illustration, 1:1 square format. A person performing the exercise "${name}" on a fitness machine or with dumbbells. Slight 30-degree front perspective, upper body focused. White outline style human figure on solid dark blue to black background. Machine shown in white minimalist lines. Primary muscle group highlighted in bright red. Flat 2D vector style, no 3D effects, no text, no logos, no shading. Thin uniform line weight. Clinical clean style like a fitness textbook illustration.`;
+  try {
+    const apiKey = await getOpenAIKey();
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt,
+        n: 1,
+        size: '1024x1024',
+        response_format: 'b64_json',
+      }),
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || 'Generation failed'); }
+    const json = await res.json();
+    const b64 = json.data?.[0]?.b64_json;
+    if (!b64) throw new Error('No image returned');
+    const dataUrl = `data:image/png;base64,${b64}`;
+    pendingExerciseImage = await resizeImage(dataUrl, 300, 0.75);
+    if (previewImg) { previewImg.src = pendingExerciseImage; previewImg.style.display = 'block'; }
+    if (placeholder) placeholder.style.display = 'none';
+    if (status) status.textContent = 'Image generated! Save the exercise to use it.';
+  } catch(e) {
+    if (status) status.textContent = `Generation failed: ${e.message}`;
+    if (placeholder) placeholder.innerHTML = '<div style="font-size:32px">✨</div><div>Enter a name, then generate</div>';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 async function saveExercise() {
   hideAlert('modal-alert');
   const user = getSession(); if (!user) return;
@@ -1053,6 +1099,11 @@ async function saveExercise() {
     }
     if (error) throw error;
     closeExerciseModal();
+    const _urlParams = new URLSearchParams(location.search);
+    if (_urlParams.get('from') === 'train') {
+      window.location.href = 'train.html';
+      return;
+    }
     if (typeof window._afterExerciseSave === 'function') {
       const cb = window._afterExerciseSave;
       window._afterExerciseSave = null;
@@ -1074,6 +1125,8 @@ async function deleteExercise(id) {
 async function loadExercisePage() {
   const user = guardHome(); if (!user) return;
   await loadNavbarAvatar(user);
+  const _exParams = new URLSearchParams(location.search);
+  if (_exParams.get('new') === '1') { setTimeout(() => openExerciseModal(null), 150); }
   const { data: exercises } = await db.from('exercises').select('*').eq('username', user).order('created_at', { ascending: false });
   const grid = document.getElementById('exercise-grid');
   const tEx = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
@@ -1909,6 +1962,7 @@ let currentExerciseData = null;
 let currentExerciseSets = [];
 let currentExerciseSuggestions = [];
 let _trainExerciseCache = [];
+let _lastSessionForType = null;
 
 const CAROUSEL_ITEMS = [
   { type: 'pull',    label: 'Pull',    icon: '⬇️',  sub: 'Back · Biceps' },
@@ -1938,6 +1992,7 @@ async function loadTrainPage() {
 function renderWorkoutTypeSelection() {
   const content = document.getElementById('train-page-content');
   if (!content) return;
+  content.style.overflowY = 'hidden';
   currentWorkout = null;
   carouselIndex = 0;
   content.innerHTML = `
@@ -1965,7 +2020,6 @@ function renderWorkoutTypeSelection() {
       ${CAROUSEL_ITEMS.map((_, i) => `<div class="carousel-dot${i === 0 ? ' active' : ''}" onclick="rotateCarouselTo(${i})"></div>`).join('')}
     </div>
     <div class="carousel-select-wrap">
-
     </div>
   `;
   initCarousel3D();
@@ -2065,9 +2119,14 @@ async function renderExerciseSelection() {
   const user = getSession(); if (!user || !currentWorkout) return;
   const content = document.getElementById('train-page-content');
   if (!content) return;
+  content.style.overflowY = 'auto';
   content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray)">Loading…</div>`;
-  const { data: exercises } = await db.from('exercises').select('*').eq('username', user);
-  _trainExerciseCache = exercises || [];
+  const [exerciseRes, lastRes] = await Promise.all([
+    db.from('exercises').select('*').eq('username', user),
+    db.from('workout_sessions').select('*').eq('username', user).eq('type', currentWorkout.type).order('created_at', { ascending: false }).limit(1)
+  ]);
+  _trainExerciseCache = exerciseRes.data || [];
+  _lastSessionForType = (lastRes.data && lastRes.data.length > 0) ? lastRes.data[0] : null;
   const tags = WORKOUT_TYPE_TAGS[currentWorkout.type] || [];
   const grouped = {};
   tags.forEach(tag => {
@@ -2095,6 +2154,19 @@ async function renderExerciseSelection() {
             </div>
           </div>`;
       }).join('');
+  const lastSessionHtml = _lastSessionForType ? (() => {
+    const ls = _lastSessionForType;
+    const d = new Date(ls.created_at);
+    const dateStr = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    const exCount = (ls.exercises || []).length;
+    return `<div class="last-training-card" onclick="openLastTrainingSpectate()">
+      <div class="last-training-label">Last Training</div>
+      <div class="last-training-title">${ls.title}</div>
+      <div class="last-training-meta">${dateStr} · ${exCount} exercise${exCount !== 1 ? 's' : ''}</div>
+      <div class="last-training-arrow">View →</div>
+    </div>`;
+  })() : '';
+
   content.innerHTML = `
     <div class="train-session-header">
       <div>
@@ -2104,6 +2176,7 @@ async function renderExerciseSelection() {
       <button class="btn-finish-workout" onclick="confirmFinishWorkout()">Workout Finished ✓</button>
     </div>
     <div id="train-session-log"></div>
+    ${lastSessionHtml}
     <div class="train-add-ex-header">
       <span>Add Exercise</span>
       <button class="btn-create-ex-inline" onclick="openNewExerciseFromTrain()">+ Create New</button>
@@ -2325,15 +2398,7 @@ function confirmExerciseSets() {
 
 function openNewExerciseFromTrain() {
   if (!currentWorkout) return;
-  window._afterExerciseSave = async () => {
-    const user = getSession();
-    if (user) {
-      const { data: exercises } = await db.from('exercises').select('*').eq('username', user);
-      _trainExerciseCache = exercises || [];
-    }
-    await renderExerciseSelection();
-  };
-  openExerciseModal(null);
+  window.location.href = 'exercises.html?new=1&from=train';
 }
 
 async function confirmFinishWorkout() {
@@ -2370,6 +2435,35 @@ async function confirmFinishWorkout() {
       </div>
     </div>
   `;
+}
+
+function openLastTrainingSpectate() {
+  if (!_lastSessionForType) return;
+  const s = _lastSessionForType;
+  const exercises = s.exercises || [];
+  const exHtml = exercises.map(ex => {
+    const setsStr = (ex.sets || []).map(st => `${st.weight}kg × ${st.reps}`).join(', ');
+    return `<div class="spectate-exercise">
+      <div class="spectate-ex-name">${ex.name}</div>
+      ${setsStr ? `<div class="spectate-ex-sets">${setsStr}</div>` : ''}
+    </div>`;
+  }).join('');
+  const existing = document.getElementById('last-training-spectate-modal');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'last-training-spectate-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-height:80vh;display:flex;flex-direction:column">
+      <div class="modal-header" style="flex-shrink:0">
+        <div class="modal-title">${s.title}</div>
+        <button class="modal-close" onclick="document.getElementById('last-training-spectate-modal').remove()">×</button>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:8px 0">
+        ${exHtml || '<p style="color:var(--gray);text-align:center;padding:20px">No exercises recorded.</p>'}
+      </div>
+    </div>`;
+  document.body.appendChild(el);
 }
 
 // ── Weigh-in Storage ──────────────────────────────────────────
@@ -2599,6 +2693,8 @@ function switchDiaryTab(tab) {
   if (tab === 'progress') renderProgressChart();
 }
 
+let _diarySessions = [];
+
 async function loadDiaryTrainings() {
   const user = getSession(); if (!user) return;
   const container = document.getElementById('diary-trainings-list');
@@ -2609,29 +2705,29 @@ async function loadDiaryTrainings() {
     container.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:14px;padding:20px 0">No trainings logged yet.</p>';
     return;
   }
-  const sorted = [...logs].sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at));
+  _diarySessions = [];
+  const sorted = [...logs].sort((a, b) => new Date(b.logged_at || b.created_at) - new Date(a.logged_at || a.created_at));
   container.innerHTML = sorted.map(l => {
-    const d = new Date(l.logged_at);
-    const dateStr = d.toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    const d = new Date(l.logged_at || l.created_at);
+    const dateStr = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     const timeStr = d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
     if (l._isSession) {
+      const idx = _diarySessions.length;
+      _diarySessions.push(l);
       const exercises = Array.isArray(l.exercises) ? l.exercises : [];
-      const exHtml = exercises.map(ex => {
-        const setsStr = Array.isArray(ex.sets) ? ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(', ') : '';
-        return `<div class="diary-log-exercise">💪 ${ex.name}${setsStr ? ` — ${setsStr}` : ''}</div>`;
-      }).join('');
-      return `<div class="diary-log-item">
+      return `<div class="diary-log-item diary-session-clickable" onclick="openDiarySessionSpectate(${idx})" style="cursor:pointer">
         <div style="flex:1;min-width:0">
-          <div class="diary-log-title">🏋️ ${l.title}</div>
-          ${exHtml}
+          <div class="diary-log-title">${l.title}</div>
+          <div class="diary-log-exercise-count">${exercises.length} exercise${exercises.length !== 1 ? 's' : ''}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;padding-left:10px">
           <div class="diary-log-date">${dateStr}</div>
-          <div class="diary-log-date">${timeStr} Uhr</div>
+          <div class="diary-log-date">${timeStr}</div>
+          <div class="diary-log-view">View →</div>
         </div>
       </div>`;
     }
-    const weightStr = l.weight ? `<div class="diary-log-weight">⚖️ ${l.weight} kg</div>` : '';
+    const weightStr = l.weight ? `<div class="diary-log-weight">${l.weight} kg</div>` : '';
     return `<div class="diary-log-item">
       <div>
         <div class="diary-log-title">${l.title}</div>
@@ -2639,10 +2735,39 @@ async function loadDiaryTrainings() {
       </div>
       <div style="text-align:right">
         <div class="diary-log-date">${dateStr}</div>
-        <div class="diary-log-date">${timeStr} Uhr</div>
+        <div class="diary-log-date">${timeStr}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+function openDiarySessionSpectate(idx) {
+  const session = _diarySessions[idx];
+  if (!session) return;
+  const exercises = session.exercises || [];
+  const exHtml = exercises.map(ex => {
+    const setsStr = (ex.sets || []).map(s => `${s.weight}kg × ${s.reps}`).join(', ');
+    return `<div class="spectate-exercise">
+      <div class="spectate-ex-name">${ex.name}</div>
+      ${setsStr ? `<div class="spectate-ex-sets">${setsStr}</div>` : ''}
+    </div>`;
+  }).join('');
+  const existing = document.getElementById('diary-spectate-modal');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'diary-spectate-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-height:80vh;display:flex;flex-direction:column">
+      <div class="modal-header" style="flex-shrink:0">
+        <div class="modal-title">${session.title}</div>
+        <button class="modal-close" onclick="document.getElementById('diary-spectate-modal').remove()">×</button>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:8px 0">
+        ${exHtml || '<p style="color:var(--gray);text-align:center;padding:20px">No exercises recorded.</p>'}
+      </div>
+    </div>`;
+  document.body.appendChild(el);
 }
 
 function renderProgressChart() {
@@ -2757,18 +2882,20 @@ function renderWeeklyChart(user, logs) {
   if (!svg) return;
   const year = analyticsYear, month = analyticsMonth;
   const weeks = [];
-  [0,1,2,3].forEach(w => {
+  [0,1,2,3,4].forEach(w => {
     const start = w * 7 + 1;
-    const end = Math.min(start + 6, new Date(year, month + 1, 0).getDate());
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    if (start > daysInMonth) return;
+    const end = Math.min(start + 6, daysInMonth);
     const count = logs.filter(l => {
       const d = new Date(l.logged_at);
       return d.getMonth() === month && d.getFullYear() === year && d.getDate() >= start && d.getDate() <= end;
     }).length;
-    weeks.push({ label: `Woche ${w+1}`, count });
+    weeks.push({ label: `Week ${w+1}`, count });
   });
   const maxCount = Math.max(...weeks.map(w => w.count), 1);
   const W = 300, H = 150, PAD = 40;
-  const xStep = (W - PAD * 2) / 3;
+  const xStep = (W - PAD * 2) / Math.max(weeks.length - 1, 1);
   const points = weeks.map((w, i) => ({
     x: PAD + i * xStep,
     y: H - PAD - (w.count / maxCount) * (H - PAD * 2),

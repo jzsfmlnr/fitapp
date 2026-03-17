@@ -2190,23 +2190,23 @@ select.form-select option {
 }
 
 /* ========== ROUTINE PAGE ========== */
-.routine-grid { display: flex; flex-direction: column; gap: 16px; padding: 20px; }
+.routine-main { display: flex; align-items: center; justify-content: center; overflow: hidden; height: calc(100vh - 56px - 68px); }
+.routine-grid { display: flex; flex-direction: column; gap: 10px; padding: 0; width: 100%; max-width: 360px; }
 .routine-card {
-  border-radius: 20px;
-  padding: 28px 24px;
+  border-radius: 14px;
+  padding: 18px 20px;
   cursor: pointer;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.routine-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
-.routine-card-icon { font-size: 48px; }
+.routine-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
 .routine-card-content { flex: 1; }
-.routine-card-title { font-size: 22px; font-weight: 900; color: white; }
-.routine-card-desc { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
-.routine-card-arrow { font-size: 24px; color: rgba(255,255,255,0.6); }
+.routine-card-title { font-size: 17px; font-weight: 900; color: white; }
+.routine-card-desc { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+.routine-card-arrow { font-size: 20px; color: rgba(255,255,255,0.6); }
 
 /* ========== ANALYTICS CALENDAR ========== */
 .analytics-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -2262,6 +2262,9 @@ select.form-select option {
 .diary-log-title { font-size: 14px; font-weight: 700; }
 .diary-log-weight { font-size: 12px; color: var(--gray); margin-top: 2px; }
 .diary-log-exercise { font-size: 11px; color: var(--gray); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.diary-log-exercise-count { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.diary-log-view { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 4px; }
+.diary-session-clickable:hover { background: var(--card-2); }
 
 /* ========== TRAIN MODAL ========== */
 .train-modal-date { font-size: 18px; font-weight: 700; color: var(--gray); text-align: center; margin-bottom: 24px; }
@@ -2411,6 +2414,19 @@ select.form-select option {
 .train-finish-screen { text-align: center; padding: 80px 20px 40px; }
 .train-finish-title { font-size: 32px; font-weight: 900; color: var(--green); margin-bottom: 12px; }
 .train-finish-sub { color: var(--gray); font-size: 16px; margin-bottom: 40px; }
+
+/* Last training card */
+.last-training-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 16px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.last-training-card:hover { border-color: var(--blue); background: var(--card-2); }
+.last-training-label { font-size: 10px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.last-training-title { font-size: 14px; font-weight: 800; color: var(--black); margin-bottom: 2px; }
+.last-training-meta { font-size: 12px; color: var(--gray); }
+.last-training-arrow { font-size: 12px; color: var(--blue); margin-top: 6px; font-weight: 600; }
+/* Spectate modal */
+.spectate-exercise { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.spectate-exercise:last-child { border-bottom: none; }
+.spectate-ex-name { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.spectate-ex-sets { font-size: 12px; color: var(--gray); }
 
 /* ========== 3D CAROUSEL ========== */
 .carousel-3d-outer {
