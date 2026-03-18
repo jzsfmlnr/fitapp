@@ -3125,6 +3125,8 @@ function renderWeeklyChart(user, logs) {
     // Social page
     loadSocialPage();
   }
+  // Check unread messages and show dot on Social footer button
+  checkSocialUnreadDot();
 })();
 
 // ── Social / Friends / Chat ────────────────────────────────────
@@ -3407,4 +3409,26 @@ async function openFriendProfile(username) {
       </div>
     </div>`;
   document.body.appendChild(el);
+}
+
+// ── Social unread dot on footer ────────────────────────────────
+async function checkSocialUnreadDot() {
+  const user = getSession(); if (!user) return;
+  const { count } = await db.from('messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('receiver', user).eq('read', false);
+  const link = document.querySelector('a[href="social.html"].bottom-nav-item');
+  if (!link) return;
+  link.style.position = 'relative';
+  let dot = link.querySelector('.bn-social-unread-dot');
+  if (count > 0) {
+    if (!dot) {
+      dot = document.createElement('span');
+      dot.className = 'bn-social-unread-dot';
+      link.appendChild(dot);
+    }
+    dot.style.display = 'block';
+  } else if (dot) {
+    dot.style.display = 'none';
+  }
 }
