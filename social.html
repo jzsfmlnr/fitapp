@@ -3,13 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Routine · FitMol</title>
+  <title>Social · FitMol</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    #social-main { padding: 0; }
+    #social-main.chat-active { display: flex; flex-direction: column; height: calc(100vh - 56px - 68px); }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  </style>
 </head>
 <body>
   <nav class="navbar">
     <a href="home.html" class="navbar-brand">⚡ FitMol</a>
-    <div class="navbar-nav"></div>
+    <div class="navbar-nav">
+      <a href="exercises.html" class="nav-link" data-i18n="nav_exercises">Exercises</a>
+      <a href="training.html" class="nav-link" data-i18n="nav_training">Training</a>
+      <a href="plan.html" class="nav-link" data-i18n="nav_plan">Plan</a>
+    </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="nav-tool-wrap" id="nav-tool-wrap">
         <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tools</button>
@@ -30,37 +39,13 @@
       </div>
     </div>
   </nav>
-  <main class="home-content routine-main" id="routine-page">
-    <div class="routine-grid">
-      <a href="exercises.html" class="routine-card" style="background:linear-gradient(135deg,#021941,#052865)">
-        <div class="routine-card-content">
-          <div class="routine-card-title" data-i18n="card_exercises_title">Exercises</div>
-          <div class="routine-card-desc" data-i18n="routine_ex_desc">Create an exercise</div>
-        </div>
-        <div class="routine-card-arrow">→</div>
-      </a>
-      <a href="training.html" class="routine-card" style="background:linear-gradient(135deg,#021941,#052865)">
-        <div class="routine-card-content">
-          <div class="routine-card-title" data-i18n="card_training_title">Training</div>
-          <div class="routine-card-desc" data-i18n="routine_tr_desc">Build a personalized training session</div>
-        </div>
-        <div class="routine-card-arrow">→</div>
-      </a>
-      <a href="plan.html" class="routine-card" style="background:linear-gradient(135deg,#021941,#052865)">
-        <div class="routine-card-content">
-          <div class="routine-card-title" data-i18n="routine_plan_title">Workout Plan</div>
-          <div class="routine-card-desc" data-i18n="routine_plan_desc">Plan your week</div>
-        </div>
-        <div class="routine-card-arrow">→</div>
-      </a>
-    </div>
-  </main>
+  <main class="home-content" id="social-main"></main>
   <nav class="bottom-nav">
     <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
-    <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
+    <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
     <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
     <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
-    <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
+    <a href="social.html" class="bottom-nav-item active"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
   </nav>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>

@@ -16,7 +16,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="nav-tool-wrap" id="nav-tool-wrap">
-          <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tool</button>
+          <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tools</button>
           <div class="tool-menu" id="tool-menu">
             <div class="tool-menu-header">Tools</div>
             <button class="avatar-menu-item" onclick="openBmiModal()">📊 BMI Calculator</button>
@@ -36,47 +36,43 @@
     </nav>
     <main class="home-content">
       <div class="page-header">
-        <div class="page-title">📅 Training Plan</div>
+        <div class="page-title" data-i18n="page_plan_title">📅 Training Plan</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="importPlan()">⬆️ Import</button>
-          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="exportPlan()">⬇️ Export</button>
-          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="resetPlan()">New Plan</button>
+          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="importPlan()" data-i18n="btn_import">⬆️ Import</button>
+          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="exportPlan()" data-i18n="btn_export">⬇️ Export</button>
+          <button class="btn btn-outline" style="width:auto;padding:10px 18px;font-size:14px" onclick="resetPlan()" data-i18n="btn_new_plan">New Plan</button>
         </div>
       </div>
-      <!-- Draggable chips -->
       <div class="training-chips-box">
-        <div class="chips-label">Trainings — drag or tap, then click on a day</div>
+        <div class="chips-label" data-i18n="chips_label">Trainings — drag or tap, then click on a day</div>
         <div class="chips-row" id="chips-row">
-          <span style="color:var(--gray);font-size:13px">No trainings yet. <a href="training.html" style="color:var(--blue)">Create →</a></span>
+          <span style="color:var(--gray);font-size:13px" data-i18n="empty_trainings_chips">No trainings yet.</span>
         </div>
       </div>
-      <!-- 7-day grid (scrollable on mobile) -->
       <div class="plan-grid-scroll">
         <div class="plan-grid" id="plan-grid"></div>
       </div>
-      <!-- Save row -->
       <div class="plan-save-row">
-        <input class="form-input" type="text" id="plan-name" placeholder="Plan name (e.g. Week 1)" />
-        <button class="btn btn-primary" style="width:auto;padding:14px 28px;white-space:nowrap" onclick="savePlan()">Save Plan ✓</button>
+        <input class="form-input" type="text" id="plan-name" data-i18n-ph="plan_name_ph" placeholder="Plan name (e.g. Week 1)" />
+        <button class="btn btn-primary" style="width:auto;padding:14px 28px;white-space:nowrap" onclick="savePlan()" data-i18n="btn_save_plan">Save Plan ✓</button>
       </div>
       <div id="plan-alert" class="alert alert-error" style="margin-top:12px"></div>
       <div id="plan-success" class="alert alert-success" style="margin-top:12px"></div>
-      <!-- Saved plans -->
       <div class="trainings-section">
         <div class="page-header" style="margin-top:12px">
-          <div class="page-title" style="font-size:22px">📋 Saved Plans</div>
+          <div class="page-title" style="font-size:22px" data-i18n="section_saved_plans">📋 Saved Plans</div>
         </div>
         <div id="saved-plans-list">
-          <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">No plans saved yet.</div></div>
+          <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text" data-i18n="empty_plans">No plans saved yet.</div></div>
         </div>
       </div>
     </main>
     <nav class="bottom-nav">
-      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
-      <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span>Routine</span></a>
-      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span>Train</span></a>
-      <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Diary</span></a>
-      <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profile</span></a>
+      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+      <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
+      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
+      <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
+      <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
     </nav>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>

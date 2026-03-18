@@ -11,26 +11,33 @@
       <a href="home.html" class="navbar-brand">⚡ FitMol</a>
       <div class="navbar-nav"></div>
       <div style="display:flex;align-items:center;gap:10px">
+        <div class="nav-tool-wrap" id="nav-tool-wrap">
+          <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tools</button>
+          <div class="tool-menu" id="tool-menu">
+            <div class="tool-menu-header">Tools</div>
+            <button class="avatar-menu-item" onclick="openBmiModal()">📊 BMI Calculator</button>
+            <button class="avatar-menu-item" onclick="openCalorieModal()">🤖 Calorie AI</button>
+          </div>
+        </div>
         <div class="nav-avatar-wrap" id="nav-avatar-wrap">
           <div class="navbar-avatar" id="nav-avatar" onclick="toggleAvatarMenu(event)">?</div>
           <div class="avatar-menu" id="avatar-menu">
             <div class="avatar-menu-username" id="nav-username">...</div>
-            <a href="profile.html" class="avatar-menu-item">⚙️ Settings</a>
-            <button class="avatar-menu-item" onclick="openContactModal()">✉️ Message</button>
-            <button class="avatar-menu-item avatar-menu-logout" onclick="logout()">🚪 Logout</button>
+            <a href="profile.html" class="avatar-menu-item" data-i18n="menu_settings">⚙️ Settings</a>
+            <button class="avatar-menu-item" onclick="openContactModal()" data-i18n="menu_message">✉️ Message</button>
+            <button class="avatar-menu-item avatar-menu-logout" onclick="logout()" data-i18n="menu_logout">🚪 Logout</button>
           </div>
         </div>
       </div>
     </nav>
     <main class="home-content">
       <div class="diary-tabs">
-        <button class="diary-tab active" onclick="switchDiaryTab('analytics')">Analytics</button>
-        <button class="diary-tab" onclick="switchDiaryTab('trainings')">Trainings</button>
-        <button class="diary-tab" onclick="switchDiaryTab('progress')">Progress</button>
+        <button class="diary-tab active" onclick="switchDiaryTab('analytics')" data-i18n="tab_analytics">Analytics</button>
+        <button class="diary-tab" onclick="switchDiaryTab('trainings')" data-i18n="tab_trainings">Trainings</button>
+        <button class="diary-tab" onclick="switchDiaryTab('progress')" data-i18n="tab_progress">Progress</button>
       </div>
       <!-- Tab: Analytics -->
       <div class="diary-tab-content active" id="diary-analytics">
-        <!-- Calendar card -->
         <div class="builder-card" style="margin:0 0 16px">
           <div class="builder-card-title" style="display:flex;justify-content:space-between;align-items:center">
             <button onclick="changeAnalyticsMonth(-1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">‹</button>
@@ -38,19 +45,18 @@
             <button onclick="changeAnalyticsMonth(1)" style="background:none;border:none;color:var(--black);font-size:20px;cursor:pointer">›</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px;text-align:center">
-            <div style="font-size:11px;color:var(--gray);padding:4px">Mo</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">Tu</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">We</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">Th</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">Fr</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">Sa</div>
-            <div style="font-size:11px;color:var(--gray);padding:4px">Su</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_mon">Mo</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_tue">Tu</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_wed">We</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_thu">Th</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_fri">Fr</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_sat">Sa</div>
+            <div style="font-size:11px;color:var(--gray);padding:4px" data-i18n="cal_sun">Su</div>
           </div>
           <div class="analytics-calendar" id="analytics-calendar"></div>
         </div>
-        <!-- Weekly chart card -->
         <div class="builder-card" style="margin:0 0 16px">
-          <div class="builder-card-title">Weekly Trainings</div>
+          <div class="builder-card-title" data-i18n="weekly_trainings_title">Weekly Trainings</div>
           <div class="analytics-chart-wrap">
             <svg id="analytics-chart-svg" viewBox="0 0 300 150" style="width:100%;overflow:visible"></svg>
           </div>
@@ -59,9 +65,9 @@
       <!-- Tab: Trainings -->
       <div class="diary-tab-content" id="diary-trainings">
         <div class="builder-card" style="margin:0 0 16px">
-          <div class="builder-card-title">Training Log</div>
+          <div class="builder-card-title" data-i18n="training_log_title">Training Log</div>
           <div id="diary-trainings-list" style="padding:8px 0">
-            <p style="text-align:center;color:var(--gray);font-size:14px">Loading...</p>
+            <p style="text-align:center;color:var(--gray);font-size:14px" data-i18n="loading_text">Loading...</p>
           </div>
         </div>
       </div>
@@ -69,7 +75,7 @@
       <div class="diary-tab-content" id="diary-progress">
         <div id="progress-summary" style="text-align:center;margin-bottom:16px"></div>
         <div class="builder-card" style="margin:0 0 16px">
-          <div class="builder-card-title">Weight Progress</div>
+          <div class="builder-card-title" data-i18n="weight_progress_title">Weight Progress</div>
           <div class="analytics-chart-wrap">
             <svg id="progress-weight-svg" viewBox="0 0 300 150" style="width:100%;overflow:visible"></svg>
           </div>
@@ -77,14 +83,14 @@
       </div>
     </main>
     <nav class="bottom-nav">
-      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
-      <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
-      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span>Train</span></a>
-      <a href="analytics.html" class="bottom-nav-item active"><span class="bn-icon">📊</span><span>Diary</span></a>
-      <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profile</span></a>
+      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+      <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
+      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
+      <a href="analytics.html" class="bottom-nav-item active"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
+      <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
     </nav>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="app.js"></script>
   </body>
-                                                                                              </html>
+</html>

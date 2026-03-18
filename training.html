@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,12 +11,12 @@
     <a href="home.html" class="navbar-brand">⚡ FitMol</a>
     <div class="navbar-nav">
       <a href="exercises.html" class="nav-link" data-i18n="nav_exercises">Exercises</a>
-      <a href="training.html" class="nav-link active" data-i18n="nav_training">Workout</a>
+      <a href="training.html" class="nav-link active" data-i18n="nav_training">Training</a>
       <a href="plan.html" class="nav-link" data-i18n="nav_plan">Plan</a>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="nav-tool-wrap" id="nav-tool-wrap">
-        <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tool</button>
+        <button class="nav-tool-btn" onclick="toggleToolMenu(event)">⚡ Tools</button>
         <div class="tool-menu" id="tool-menu">
           <div class="tool-menu-header">Tools</div>
           <button class="avatar-menu-item" onclick="openBmiModal()">📊 BMI Calculator</button>
@@ -37,35 +37,29 @@
 
   <main class="home-content">
     <div class="page-header">
-      <div class="page-title" data-i18n="page_training_title">📋 My Workouts</div>
-      <button class="btn btn-primary" style="width:auto;padding:12px 24px" onclick="openTrainingModal()" data-i18n="btn_new_training">+ New Session</button>
+      <div class="page-title" data-i18n="page_training_title">📋 My Trainings</div>
+      <button class="btn btn-primary" style="width:auto;padding:12px 24px" onclick="openTrainingModal()" data-i18n="btn_new_training">+ New Training</button>
     </div>
     <div id="saved-trainings-list">
-      <div class="empty-state"><div class="empty-state-icon">🏋️</div><div class="empty-state-text">No workouts saved yet.</div></div>
+      <div class="empty-state"><div class="empty-state-icon">🏋️</div><div class="empty-state-text" data-i18n="empty_workouts">No workouts saved yet.</div></div>
     </div>
   </main>
 
   <!-- TRAINING BUILDER MODAL -->
   <div class="modal-overlay" id="training-builder-modal">
     <div class="training-builder-card">
-
-      <!-- Sticky header -->
       <div class="tb-header">
-        <div class="modal-title" id="training-modal-title">Create a workout</div>
+        <div class="modal-title" id="training-modal-title" data-i18n="modal_new_training_title">Create Training</div>
         <button class="modal-close" onclick="closeTrainingModal()">×</button>
       </div>
-
-      <!-- Scrollable body -->
       <div class="tb-body">
         <input type="hidden" id="edit-training-id" />
         <div id="training-alert" class="alert alert-error"></div>
-
-        <!-- Info box (compact) -->
         <div class="builder-card builder-card-compact">
           <div class="training-info-row">
             <div class="training-info-fields">
-              <input class="form-input training-info-input" type="text" id="tr-title" placeholder="Title" data-i18n-ph="tr_title_ph" />
-              <input class="form-input training-info-input" type="text" id="tr-desc" placeholder="Description (optional)" data-i18n-ph="tr_desc_ph" />
+              <input class="form-input training-info-input" type="text" id="tr-title" data-i18n-ph="tr_title_ph" placeholder="Title" />
+              <input class="form-input training-info-input" type="text" id="tr-desc" data-i18n-ph="tr_desc_ph" placeholder="Description (optional)" />
             </div>
             <div class="training-info-intensity">
               <div class="intensity-label-row">
@@ -77,10 +71,8 @@
             </div>
           </div>
         </div>
-
-        <!-- Available exercises strip + grid combined -->
         <div class="builder-card builder-ex-section">
-          <div class="builder-card-title" data-i18n="section_add_exercises">Add exercises</div>
+          <div class="builder-card-title" data-i18n="section_add_exercises">Add Exercises</div>
           <div class="builder-ex-strip" id="builder-ex-strip"></div>
           <div class="training-ex-grid" id="training-ex-grid"
                ondragover="event.preventDefault()"
@@ -92,12 +84,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Sticky footer -->
       <div class="tb-footer">
-        <button class="btn btn-primary" id="training-save-btn" onclick="saveTraining()" data-i18n="btn_save_training">Save workout ✓</button>
+        <button class="btn btn-primary" id="training-save-btn" onclick="saveTraining()" data-i18n="btn_save_training">Save Training ✓</button>
       </div>
-
     </div>
   </div>
 
@@ -117,11 +106,11 @@
   </div>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
-    <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span>Routine</span></a>
-    <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span>Train</span></a>
-    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Diary</span></a>
-    <a href="profile.html" class="bottom-nav-item"><span class="bn-icon">👤</span><span>Profile</span></a>
+    <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+    <a href="routine.html" class="bottom-nav-item active"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
+    <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
+    <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
+    <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

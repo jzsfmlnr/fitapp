@@ -97,6 +97,50 @@ const TRANSLATIONS = {
     label_tag:'Muskelgruppe', err_tag_required:'Bitte eine Muskelgruppe auswählen.',
     tag_schulter:'Schulter', tag_ruecken:'Rücken', tag_bizeps:'Bizeps', tag_trizeps:'Trizeps',
     tag_unterarm:'Unterarm', tag_beine:'Beine', tag_brust:'Brust', tag_bauch:'Bauch', tag_sonstiges:'Sonstiges',
+    cal_mon:'Mo', cal_tue:'Di', cal_wed:'Mi', cal_thu:'Do', cal_fri:'Fr', cal_sat:'Sa', cal_sun:'So',
+    bn_routine:'Routine', bn_train:'Train', bn_diary:'Tagebuch',
+    label_name:'Name',
+    tab_analytics:'Analyse', tab_trainings:'Trainings', tab_progress:'Fortschritt',
+    weekly_trainings_title:'Wöchentliche Trainings', training_log_title:'Trainingsprotokoll',
+    weight_progress_title:'Gewichtsverlauf', loading_text:'Laden...',
+    routine_ex_desc:'Übung erstellen', routine_tr_desc:'Trainingseinheit erstellen',
+    routine_plan_title:'Trainingsplan', routine_plan_desc:'Plane deine Woche',
+    empty_workouts:'Noch keine Workouts gespeichert.',
+    btn_weighin:'⚖️ Abwiegen', btn_workout_done:'🏋️ Workout erledigt?',
+    bn_social:'Social',
+    social_friends_tab:'Freunde', social_requests_tab:'Anfragen', social_find_tab:'Suchen',
+    social_add_ph:'Username eingeben…', social_send_request:'Anfrage senden',
+    social_accept:'Annehmen', social_decline:'Ablehnen',
+    social_no_friends:'Noch keine Freunde. Füge jemanden hinzu!',
+    social_no_requests:'Keine Anfragen.', social_no_messages:'Noch keine Nachrichten.',
+    social_message_ph:'Nachricht…', social_send:'Senden',
+    social_online:'Online', social_last_active:'Zuletzt aktiv vor',
+    social_user_not_found:'User nicht gefunden.',
+    social_request_sent:'Anfrage gesendet! ✓', social_already_friends:'Ihr seid bereits Freunde.',
+    social_request_exists:'Anfrage wurde bereits gesendet.', social_cant_add_self:'Du kannst dich nicht selbst adden.',
+    // Train page
+    train_choose_workout:'Wähle dein Workout:', train_no_training_today:'Noch kein Training heute 💤',
+    train_weight_kg:'Gewicht (kg)', train_weight_ph:'z.B. 75', train_save_btn:'Speichern',
+    train_time_suffix:'Uhr', train_select_training:'Training auswählen:',
+    train_no_trainings_yet:'Noch keine Trainings.', train_create_link_label:'Erstellen →',
+    train_today_exercises:'Heutige Übungen:', train_set_label:'Satz', train_sets_label:'Sätze',
+    train_reps_label:'Wiederholungen', train_custom_ph:'individuell',
+    train_add_set:'+ Satz hinzufügen', train_finished_btn:'Fertig ✓',
+    train_err_weight:'Bitte für alle Sätze ein Gewicht wählen.',
+    train_err_no_exercise:'Bitte mindestens eine Übung vor dem Beenden hinzufügen.',
+    train_confirm_finish:'Workout beenden und speichern?',
+    train_err_save:'Fehler beim Speichern. Bitte erneut versuchen.',
+    train_complete_title:'Workout abgeschlossen!', train_complete_sub:'Gut gemacht! Dein Workout wurde gespeichert.',
+    train_new_workout:'Neues Workout starten', train_back_home:'← Zurück zur Startseite',
+    train_spectate_no_exercises:'Keine Übungen aufgezeichnet.',
+    train_workout_finished_btn:'Workout beendet ✓', train_add_exercise:'Übung hinzufügen',
+    train_create_new:'+ Neu erstellen', train_last_training:'Letztes Training',
+    train_view_btn:'Ansehen →', train_no_match:'Keine passenden Übungen gefunden.',
+    train_no_match_hint:'Erstelle Übungen mit den richtigen Muskelgruppen.',
+    train_exercise_singular:'Übung', train_exercise_plural:'Übungen',
+    carousel_pull_sub:'Rücken · Bizeps', carousel_push_sub:'Brust · Trizeps',
+    carousel_arms_sub:'Bizeps · Trizeps', carousel_upper_sub:'Ganzer Oberkörper',
+    carousel_lower_sub:'Beine · Bauch', carousel_legs_sub:'Oberschenkel · Hamstrings',
   },
   en: {
     nav_exercises:'Exercises', nav_training:'Training', nav_plan:'Plan',
@@ -184,6 +228,50 @@ const TRANSLATIONS = {
     label_tag:'Muscle Group', err_tag_required:'Please select a muscle group.',
     tag_schulter:'Shoulder', tag_ruecken:'Back', tag_bizeps:'Biceps', tag_trizeps:'Triceps',
     tag_unterarm:'Forearm', tag_beine:'Legs', tag_brust:'Chest', tag_bauch:'Abs', tag_sonstiges:'Other',
+    cal_mon:'Mo', cal_tue:'Tu', cal_wed:'We', cal_thu:'Th', cal_fri:'Fr', cal_sat:'Sa', cal_sun:'Su',
+    bn_routine:'Routine', bn_train:'Train', bn_diary:'Diary',
+    label_name:'Name',
+    tab_analytics:'Analytics', tab_trainings:'Trainings', tab_progress:'Progress',
+    weekly_trainings_title:'Weekly Trainings', training_log_title:'Training Log',
+    weight_progress_title:'Weight Progress', loading_text:'Loading...',
+    routine_ex_desc:'Create an exercise', routine_tr_desc:'Build a personalized training session',
+    routine_plan_title:'Workout Plan', routine_plan_desc:'Plan your week',
+    empty_workouts:'No workouts saved yet.',
+    btn_weighin:'⚖️ Weigh-in', btn_workout_done:'🏋️ Workout done?',
+    bn_social:'Social',
+    social_friends_tab:'Friends', social_requests_tab:'Requests', social_find_tab:'Find',
+    social_add_ph:'Enter username…', social_send_request:'Send Request',
+    social_accept:'Accept', social_decline:'Decline',
+    social_no_friends:'No friends yet. Add someone!',
+    social_no_requests:'No requests.', social_no_messages:'No messages yet.',
+    social_message_ph:'Message…', social_send:'Send',
+    social_online:'Online', social_last_active:'Last active',
+    social_user_not_found:'User not found.',
+    social_request_sent:'Request sent! ✓', social_already_friends:'Already friends.',
+    social_request_exists:'Request already sent.', social_cant_add_self:"You can't add yourself.",
+    // Train page
+    train_choose_workout:'Choose your Workout:', train_no_training_today:'No training today yet 💤',
+    train_weight_kg:'Weight (kg)', train_weight_ph:'e.g. 75', train_save_btn:'Save',
+    train_time_suffix:'', train_select_training:'Select Training:',
+    train_no_trainings_yet:'No trainings yet.', train_create_link_label:'Create →',
+    train_today_exercises:"Today's Exercises:", train_set_label:'set', train_sets_label:'sets',
+    train_reps_label:'Reps', train_custom_ph:'custom',
+    train_add_set:'+ Add Set', train_finished_btn:'Finished ✓',
+    train_err_weight:'Please select a weight for all sets.',
+    train_err_no_exercise:'Please add at least one exercise before finishing the workout.',
+    train_confirm_finish:'Finish this workout and save it?',
+    train_err_save:'Error saving workout. Please try again.',
+    train_complete_title:'Workout Complete!', train_complete_sub:'Great job! Your workout has been saved.',
+    train_new_workout:'Start New Workout', train_back_home:'← Back to Home',
+    train_spectate_no_exercises:'No exercises recorded.',
+    train_workout_finished_btn:'Workout Finished ✓', train_add_exercise:'Add Exercise',
+    train_create_new:'+ Create New', train_last_training:'Last Training',
+    train_view_btn:'View →', train_no_match:'No matching exercises found.',
+    train_no_match_hint:'Create exercises with the correct muscle groups first.',
+    train_exercise_singular:'exercise', train_exercise_plural:'exercises',
+    carousel_pull_sub:'Back · Biceps', carousel_push_sub:'Chest · Triceps',
+    carousel_arms_sub:'Biceps · Triceps', carousel_upper_sub:'Full Upper Body',
+    carousel_lower_sub:'Legs · Abs', carousel_legs_sub:'Quads · Hamstrings',
   },
   hu: {
     nav_exercises:'Gyakorlatok', nav_training:'Edzés', nav_plan:'Terv',
@@ -271,9 +359,57 @@ const TRANSLATIONS = {
     label_tag:'Izomcsoport', err_tag_required:'Kérjük válasszon izomcsoportot.',
     tag_schulter:'Váll', tag_ruecken:'Hát', tag_bizeps:'Bicepsz', tag_trizeps:'Tricepsz',
     tag_unterarm:'Alkar', tag_beine:'Lábak', tag_brust:'Mell', tag_bauch:'Has', tag_sonstiges:'Egyéb',
+    // Train page
+    train_choose_workout:'Válaszd ki az edzést:', train_no_training_today:'Ma még nincs edzés 💤',
+    train_weight_kg:'Súly (kg)', train_weight_ph:'pl. 75', train_save_btn:'Mentés',
+    train_time_suffix:'', train_select_training:'Edzés kiválasztása:',
+    train_no_trainings_yet:'Még nincsenek edzések.', train_create_link_label:'Létrehozás →',
+    train_today_exercises:'Mai gyakorlatok:', train_set_label:'szet', train_sets_label:'szetek',
+    train_reps_label:'Ismétlések', train_custom_ph:'egyéni',
+    train_add_set:'+ Szet hozzáadása', train_finished_btn:'Kész ✓',
+    train_err_weight:'Kérjük minden szetnél adjon meg súlyt.',
+    train_err_no_exercise:'Kérjük adjon hozzá legalább egy gyakorlatot a befejezés előtt.',
+    train_confirm_finish:'Befejezi és menti az edzést?',
+    train_err_save:'Hiba a mentés közben. Kérjük próbálja újra.',
+    train_complete_title:'Edzés befejezve!', train_complete_sub:'Remek munka! Az edzésed el lett mentve.',
+    train_new_workout:'Új edzés indítása', train_back_home:'← Vissza a főoldalra',
+    train_spectate_no_exercises:'Nincsenek rögzített gyakorlatok.',
+    train_workout_finished_btn:'Edzés kész ✓', train_add_exercise:'Gyakorlat hozzáadása',
+    train_create_new:'+ Új létrehozása', train_last_training:'Utolsó edzés',
+    train_view_btn:'Megtekintés →', train_no_match:'Nem találhatók megfelelő gyakorlatok.',
+    train_no_match_hint:'Először hozz létre gyakorlatokat a megfelelő izomcsoportokkal.',
+    btn_weighin:'⚖️ Mérleg', btn_workout_done:'🏋️ Edzettél már?',
+    bn_social:'Social',
+    social_friends_tab:'Barátok', social_requests_tab:'Kérések', social_find_tab:'Keresés',
+    social_add_ph:'Felhasználónév…', social_send_request:'Kérés küldése',
+    social_accept:'Elfogad', social_decline:'Elutasít',
+    social_no_friends:'Még nincsenek barátok.',
+    social_no_requests:'Nincsenek kérések.', social_no_messages:'Még nincsenek üzenetek.',
+    social_message_ph:'Üzenet…', social_send:'Küldés',
+    social_online:'Online', social_last_active:'Utoljára aktív',
+    social_user_not_found:'Felhasználó nem található.',
+    social_request_sent:'Kérés elküldve! ✓', social_already_friends:'Már barátok vagytok.',
+    social_request_exists:'Kérés már elküldve.', social_cant_add_self:'Nem adhatod hozzá saját magad.',
+    train_exercise_singular:'gyakorlat', train_exercise_plural:'gyakorlat',
+    carousel_pull_sub:'Hát · Bicepsz', carousel_push_sub:'Mell · Tricepsz',
+    carousel_arms_sub:'Bicepsz · Tricepsz', carousel_upper_sub:'Teljes felsőtest',
+    carousel_lower_sub:'Lábak · Has', carousel_legs_sub:'Quadriceps · Hamstrings',
+    bn_routine:'Rutin', bn_train:'Edzés', bn_diary:'Napló',
+    tab_analytics:'Elemzés', tab_trainings:'Edzések', tab_progress:'Fejlődés',
+    weekly_trainings_title:'Heti edzések', training_log_title:'Edzésnapló',
+    weight_progress_title:'Súlyfejlődés', loading_text:'Betöltés...',
+    routine_ex_desc:'Gyakorlat létrehozása', routine_tr_desc:'Személyes edzés összeállítása',
+    routine_plan_title:'Edzésterv', routine_plan_desc:'Tervezd meg a heted',
+    empty_workouts:'Még nincsenek mentett edzések.',
+    label_name:'Név',
   }
 };
 
+// One-time migration: reset language to 'en' for all existing users
+if (!localStorage.getItem('fitmol_lang_default_en')) {
+  localStorage.setItem('fitmol_lang', 'en');
+  localStorage.setItem('fitmol_lang_default_en', '1');
+}
 function getLang()    { return localStorage.getItem('fitmol_lang') || 'en'; }
 function setLang(l)   { localStorage.setItem('fitmol_lang', l); }
 
@@ -296,12 +432,9 @@ function applyLanguage(lang) {
     gSel.options[3].textContent = t.gender_diverse;
     gSel.options[4].textContent = t.gender_none;
   }
+  // Language names are universal; just sync the select value to current lang
   const lSel = document.getElementById('prof-language');
-  if (lSel) {
-    lSel.options[0].textContent = t.lang_de;
-    lSel.options[1].textContent = t.lang_en;
-    lSel.options[2].textContent = t.lang_hu;
-  }
+  if (lSel && lSel.value !== lang) lSel.value = lang;
   document.documentElement.lang = lang;
 }
 
@@ -397,7 +530,7 @@ async function doRegister() {
   btn.disabled = true; btn.textContent = 'Creating account…';
   try {
     const hash = await hashPassword(password);
-    const { error } = await db.from('users').insert({ username, password_hash: hash });
+    const { error } = await db.from('users').insert({ username, password_hash: hash, language: 'en' });
     if (error) {
       if (error.code === '23505') showAlert('register-alert', 'This username is already taken.');
       else throw error;
@@ -442,16 +575,11 @@ async function loadNavbarAvatar(username) {
   const menuUser = document.getElementById('nav-username');
   if (menuUser) menuUser.textContent = username;
   if (!avatar) return;
-  const { data } = await db.from('users').select('avatar_data, language').eq('username', username).maybeSingle();
+  const { data } = await db.from('users').select('avatar_data').eq('username', username).maybeSingle();
   if (data && data.avatar_data) avatar.innerHTML = `<img src="${data.avatar_data}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />`;
   else avatar.textContent = username.charAt(0).toUpperCase();
-  // Sync language from DB and apply
-  if (data && data.language) {
-    setLang(data.language);
-    applyLanguage(data.language);
-  } else {
-    applyLanguage(getLang());
-  }
+  // Language is stored only in localStorage (default: 'en')
+  applyLanguage(getLang());
 }
 
 // ── Profile ───────────────────────────────────────────────────
@@ -476,14 +604,12 @@ async function loadProfile() {
   const dispName = document.getElementById('profile-display-name');
   if (dispName) dispName.textContent = user;
   await loadNavbarAvatar(user);
-  const { data } = await db.from('users').select('birthdate, gender, avatar_data, language').eq('username', user).maybeSingle();
+  const { data } = await db.from('users').select('birthdate, gender, avatar_data').eq('username', user).maybeSingle();
   if (!data) return;
   if (data.birthdate) document.getElementById('prof-birthdate').value = data.birthdate;
   if (data.gender)    document.getElementById('prof-gender').value    = data.gender;
-  if (data.language) {
-    const langSel = document.getElementById('prof-language');
-    if (langSel) langSel.value = data.language;
-  }
+  const langSel = document.getElementById('prof-language');
+  if (langSel) langSel.value = getLang();
   if (data.avatar_data) {
     const imgEl  = document.getElementById('profile-avatar-img');
     const holder = document.getElementById('profile-avatar-placeholder');
@@ -503,12 +629,13 @@ async function saveProfile() {
   const gender    = document.getElementById('prof-gender').value    || null;
   const langSel   = document.getElementById('prof-language');
   const language  = langSel ? (langSel.value || 'en') : 'en';
-  const updateData = { birthdate, gender, language };
+  // Language is stored only in localStorage, not in Supabase
+  setLang(language);
+  const updateData = { birthdate, gender };
   if (pendingAvatarData) updateData.avatar_data = pendingAvatarData;
   try {
     const { error } = await db.from('users').update(updateData).eq('username', user).select();
     if (error) throw error;
-    setLang(language);
     applyLanguage(language);
     const tLang = TRANSLATIONS[language] || TRANSLATIONS.en;
     showAlert('profile-success', tLang.profile_save_success, 'success');
@@ -1866,6 +1993,7 @@ function injectTrainModal() {
 async function openTrainModal() {
   injectTrainModal();
   const user = getSession(); if (!user) { window.location.href = 'index.html'; return; }
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const today = getTodayKey();
   const now = new Date();
   const dateStr = now.toLocaleDateString(getLang() === 'de' ? 'de-DE' : getLang() === 'hu' ? 'hu-HU' : 'en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
@@ -1874,19 +2002,20 @@ async function openTrainModal() {
   const body = document.getElementById('train-modal-body');
   if (todayLog) {
     const time = new Date(todayLog.logged_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const timeSuffix = t.train_time_suffix ? ' ' + t.train_time_suffix : '';
     body.innerHTML = `
       <div class="train-modal-date">${dateStr}</div>
       <div class="train-today-banner">
         <div class="train-today-check">✅</div>
         <div class="train-today-title">${todayLog.title}</div>
-        <div class="train-today-time">${time} Uhr</div>
+        <div class="train-today-time">${time}${timeSuffix}</div>
       </div>
       <div style="margin-top:16px">
-        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">Gewicht (kg)</label>
+        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">${t.train_weight_kg}</label>
         <div style="display:flex;gap:8px">
-          <input type="number" id="train-weight-input" placeholder="z.B. 75" step="0.1" min="0" value="${todayLog.weight || ''}"
+          <input type="number" id="train-weight-input" placeholder="${t.train_weight_ph}" step="0.1" min="0" value="${todayLog.weight || ''}"
             style="flex:1;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:15px;outline:none" />
-          <button onclick="updateTodayWeight()" style="padding:10px 18px;border-radius:var(--radius-sm);border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;cursor:pointer">Speichern</button>
+          <button onclick="updateTodayWeight()" style="padding:10px 18px;border-radius:var(--radius-sm);border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;cursor:pointer">${t.train_save_btn}</button>
         </div>
       </div>
     `;
@@ -1895,14 +2024,14 @@ async function openTrainModal() {
     const list = trainings || [];
     body.innerHTML = `
       <div class="train-modal-date">${dateStr}</div>
-      <div class="train-not-today">Noch kein Training heute 💤</div>
+      <div class="train-not-today">${t.train_no_training_today}</div>
       <div style="margin-bottom:12px">
-        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">Gewicht (kg)</label>
-        <input type="number" id="train-weight-input" placeholder="z.B. 75" step="0.1" min="0"
+        <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">${t.train_weight_kg}</label>
+        <input type="number" id="train-weight-input" placeholder="${t.train_weight_ph}" step="0.1" min="0"
           style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card-2);color:var(--black);font-size:15px;outline:none" />
       </div>
       ${list.length > 0 ? `
-        <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--gray)">Training auswählen:</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--gray)">${t.train_select_training}</div>
         <div class="train-picker-list">
           ${list.map(tr => `
             <div class="train-pick-item" onclick="logTrainingToday('${tr.id}','${tr.title.replace(/'/g, "\\'")}')">
@@ -1910,7 +2039,7 @@ async function openTrainModal() {
               <span>➕</span>
             </div>`).join('')}
         </div>
-      ` : `<p style="text-align:center;color:var(--gray);font-size:14px">Noch keine Trainings. <a href="training.html" style="color:var(--blue)">Erstellen →</a></p>`}
+      ` : `<p style="text-align:center;color:var(--gray);font-size:14px">${t.train_no_trainings_yet} <a href="training.html" style="color:var(--blue)">${t.train_create_link_label}</a></p>`}
     `;
   }
   document.getElementById('train-modal').classList.add('open');
@@ -1955,7 +2084,7 @@ const WORKOUT_TYPE_TAGS = {
   lower_body: ['beine', 'bauch'],
   legs:    ['beine', 'bauch'],
 };
-const WORKOUT_TYPE_LABELS = { push:'Push', pull:'Pull', arms:'Arms', upper_b:'Upper Body', lower_b:'Lower Body', legs:'Legs' };
+const WORKOUT_TYPE_LABELS = { push:'Push', pull:'Pull', arms:'Arms', upper_body:'Upper Body', lower_body:'Lower Body', legs:'Legs' };
 
 let currentWorkout = null;
 let currentExerciseData = null;
@@ -1965,12 +2094,12 @@ let _trainExerciseCache = [];
 let _lastSessionForType = null;
 
 const CAROUSEL_ITEMS = [
-  { type: 'pull',    label: 'Pull',    icon: '⬇️',  sub: 'Back · Biceps' },
-  { type: 'push',    label: 'Push',    icon: '⬆️',  sub: 'Chest · Triceps' },
-  { type: 'arms',    label: 'Arms',    icon: '💪',  sub: 'Biceps · Triceps' },
-  { type: 'upper_body', label: 'Upper Body', icon: '🏋️', sub: 'Full Upper Body' },
-  { type: 'lower_body', label: 'Lower Body', icon: '🦵',  sub: 'Legs · Abs' },
-  { type: 'legs',    label: 'Legs',    icon: '🏃',  sub: 'Quads · Hamstrings' },
+  { type: 'pull',       label: 'Pull',       icon: '⬇️',  subKey: 'carousel_pull_sub' },
+  { type: 'push',       label: 'Push',       icon: '⬆️',  subKey: 'carousel_push_sub' },
+  { type: 'arms',       label: 'Arms',       icon: '💪',  subKey: 'carousel_arms_sub' },
+  { type: 'upper_body', label: 'Upper Body', icon: '🏋️', subKey: 'carousel_upper_sub' },
+  { type: 'lower_body', label: 'Lower Body', icon: '🦵',  subKey: 'carousel_lower_sub' },
+  { type: 'legs',       label: 'Legs',       icon: '🏃',  subKey: 'carousel_legs_sub' },
 ];
 let carouselIndex = 0;
 let _carouselDragged = false;
@@ -1990,6 +2119,7 @@ async function loadTrainPage() {
 }
 
 function renderWorkoutTypeSelection() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const content = document.getElementById('train-page-content');
   if (!content) return;
   content.style.overflowY = 'hidden';
@@ -1997,10 +2127,10 @@ function renderWorkoutTypeSelection() {
   carouselIndex = 0;
   content.innerHTML = `
     <div class="train-hero">
-      <div class="train-hero-sub">Choose your Workout:</div>
+      <div class="train-hero-sub">${t.train_choose_workout}</div>
     </div>
     <div class="carousel-3d-outer">
-      
+
       <div class="carousel-3d-scene" id="carousel-scene">
         <div class="carousel-3d-track" id="carousel-track">
           ${CAROUSEL_ITEMS.map((item, i) => `
@@ -2008,7 +2138,7 @@ function renderWorkoutTypeSelection() {
               <div class="carousel-card" onclick="onCarouselCardClick(${i})">
                 <div class="carousel-card-icon">${item.icon}</div>
                 <div class="carousel-card-label">${item.label}</div>
-                <div class="carousel-card-sub">${item.sub}</div>
+                <div class="carousel-card-sub">${t[item.subKey] || item.subKey}</div>
               </div>
             </div>
           `).join('')}
@@ -2120,7 +2250,8 @@ async function renderExerciseSelection() {
   const content = document.getElementById('train-page-content');
   if (!content) return;
   content.style.overflowY = 'auto';
-  content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray)">Loading…</div>`;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray)">${t.loading_text}</div>`;
   const [exerciseRes, lastRes] = await Promise.all([
     db.from('exercises').select('*').eq('username', user),
     db.from('workout_sessions').select('*').eq('username', user).eq('type', currentWorkout.type).order('created_at', { ascending: false }).limit(1)
@@ -2133,9 +2264,9 @@ async function renderExerciseSelection() {
     const matches = _trainExerciseCache.filter(e => e.tag === tag);
     if (matches.length > 0) grouped[tag] = matches;
   });
-  const tagNames = { schulter:'Shoulder', ruecken:'Back', bizeps:'Biceps', trizeps:'Triceps', unterarm:'Forearm', beine:'Legs', brust:'Chest', bauch:'Abs', sonstiges:'Other' };
+  const tagNames = { schulter: t.tag_schulter, ruecken: t.tag_ruecken, bizeps: t.tag_bizeps, trizeps: t.tag_trizeps, unterarm: t.tag_unterarm, beine: t.tag_beine, brust: t.tag_brust, bauch: t.tag_bauch, sonstiges: t.tag_sonstiges };
   let exerciseHtml = Object.keys(grouped).length === 0
-    ? `<div style="text-align:center;padding:40px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:12px">💪</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">No matching exercises found.</div><div style="font-size:13px">Create exercises with the correct muscle groups first.</div></div>`
+    ? `<div style="text-align:center;padding:40px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:12px">💪</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">${t.train_no_match}</div><div style="font-size:13px">${t.train_no_match_hint}</div></div>`
     : tags.filter(t => grouped[t]).map(tag => {
         const tg = getTagInfo(tag);
         const color = tg ? tg.color : '#7a84a0';
@@ -2157,13 +2288,13 @@ async function renderExerciseSelection() {
   const lastSessionHtml = _lastSessionForType ? (() => {
     const ls = _lastSessionForType;
     const d = new Date(ls.created_at);
-    const dateStr = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    const dateStr = d.toLocaleDateString(getLang() === 'de' ? 'de-DE' : getLang() === 'hu' ? 'hu-HU' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
     const exCount = (ls.exercises || []).length;
     return `<div class="last-training-card" onclick="openLastTrainingSpectate()">
-      <div class="last-training-label">Last Training</div>
+      <div class="last-training-label">${t.train_last_training}</div>
       <div class="last-training-title">${ls.title}</div>
-      <div class="last-training-meta">${dateStr} · ${exCount} exercise${exCount !== 1 ? 's' : ''}</div>
-      <div class="last-training-arrow">View →</div>
+      <div class="last-training-meta">${dateStr} · ${exCount} ${exCount !== 1 ? t.train_exercise_plural : t.train_exercise_singular}</div>
+      <div class="last-training-arrow">${t.train_view_btn}</div>
     </div>`;
   })() : '';
 
@@ -2173,13 +2304,13 @@ async function renderExerciseSelection() {
         <div class="train-session-type">${WORKOUT_TYPE_LABELS[currentWorkout.type]}</div>
         <div class="train-session-title-small">${currentWorkout.title}</div>
       </div>
-      <button class="btn-finish-workout" onclick="confirmFinishWorkout()">Workout Finished ✓</button>
+      <button class="btn-finish-workout" onclick="confirmFinishWorkout()">${t.train_workout_finished_btn}</button>
     </div>
     <div id="train-session-log"></div>
     ${lastSessionHtml}
     <div class="train-add-ex-header">
-      <span>Add Exercise</span>
-      <button class="btn-create-ex-inline" onclick="openNewExerciseFromTrain()">+ Create New</button>
+      <span>${t.train_add_exercise}</span>
+      <button class="btn-create-ex-inline" onclick="openNewExerciseFromTrain()">${t.train_create_new}</button>
     </div>
     ${exerciseHtml}
     <div style="height:100px"></div>
@@ -2188,6 +2319,7 @@ async function renderExerciseSelection() {
 }
 
 function renderSessionLog() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const log = document.getElementById('train-session-log');
   if (!log || !currentWorkout || currentWorkout.exercises.length === 0) {
     if (log) log.innerHTML = '';
@@ -2195,12 +2327,12 @@ function renderSessionLog() {
   }
   log.innerHTML = `
     <div class="session-log-wrap">
-      <div class="session-log-title">Today's Exercises:</div>
+      <div class="session-log-title">${t.train_today_exercises}</div>
       ${currentWorkout.exercises.map(ex => `
         <div class="session-log-item" onclick="openTrainExerciseModal('${ex.id}')">
           <div>
             <div class="session-log-name">${ex.name}</div>
-            <div class="session-log-sets">${ex.sets.length} set${ex.sets.length !== 1 ? 's' : ''} · ${ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(', ')}</div>
+            <div class="session-log-sets">${ex.sets.length} ${ex.sets.length !== 1 ? t.train_sets_label : t.train_set_label} · ${ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(', ')}</div>
           </div>
           <span class="session-log-edit">✏️</span>
         </div>
@@ -2242,7 +2374,9 @@ async function openTrainExerciseModal(exerciseId) {
 }
 
 function injectTrainExerciseModal() {
-  if (document.getElementById('train-exercise-modal')) return;
+  const existing = document.getElementById('train-exercise-modal');
+  if (existing) existing.remove();
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const el = document.createElement('div');
   el.innerHTML = `
     <div class="modal-overlay" id="train-exercise-modal">
@@ -2250,14 +2384,14 @@ function injectTrainExerciseModal() {
         <div class="modal-header" style="flex-shrink:0">
           <div style="display:flex;align-items:center;gap:12px">
             <img id="train-ex-modal-img" style="width:40px;height:40px;border-radius:10px;object-fit:cover;display:none" />
-            <div class="modal-title" id="train-ex-modal-name">Exercise</div>
+            <div class="modal-title" id="train-ex-modal-name"></div>
           </div>
           <button class="modal-close" onclick="closeTrainExerciseModal()">×</button>
         </div>
         <div id="train-sets-container" style="overflow-y:auto;flex:1;padding:0 4px"></div>
         <div class="train-sets-footer" style="flex-shrink:0">
-          <button class="btn-add-set" onclick="addTrainSet()">+ Add Set</button>
-          <button class="btn-set-finished" onclick="confirmExerciseSets()">Finished ✓</button>
+          <button class="btn-add-set" onclick="addTrainSet()">${t.train_add_set}</button>
+          <button class="btn-set-finished" onclick="confirmExerciseSets()">${t.train_finished_btn}</button>
         </div>
       </div>
     </div>`;
@@ -2270,6 +2404,7 @@ function closeTrainExerciseModal() {
 }
 
 function renderTrainSetRows() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const container = document.getElementById('train-sets-container');
   if (!container) return;
   container.innerHTML = currentExerciseSets.map((set, i) => {
@@ -2277,24 +2412,24 @@ function renderTrainSetRows() {
     return `
       <div class="train-set-row" id="train-set-row-${i}">
         <div class="train-set-row-header">
-          <span class="train-set-badge">Set ${i + 1}</span>
+          <span class="train-set-badge">${t.train_set_label} ${i + 1}</span>
           <button class="train-set-del${currentExerciseSets.length <= 1 ? ' hidden' : ''}" onclick="removeTrainSet(${i})">✕</button>
         </div>
-        <div class="train-set-weights-label">Weight (kg)</div>
+        <div class="train-set-weights-label">${t.train_weight_kg}</div>
         <div class="train-set-weight-chips">
           ${currentExerciseSuggestions.map(w => `
             <button class="train-weight-chip${Number(set.weight) === Number(w) && !isCustom ? ' selected' : ''}" onclick="setTrainSetWeight(${i}, ${w})">${w}</button>
           `).join('')}
-          <input class="train-weight-custom" type="number" placeholder="custom" min="0" step="0.5"
+          <input class="train-weight-custom" type="number" placeholder="${t.train_custom_ph}" min="0" step="0.5"
             value="${isCustom && set.weight ? set.weight : ''}"
             oninput="setTrainSetWeightCustom(${i}, this.value)" />
         </div>
-        <div class="train-set-weights-label" style="margin-top:10px">Reps</div>
+        <div class="train-set-weights-label" style="margin-top:10px">${t.train_reps_label}</div>
         <div class="train-set-weight-chips">
           ${[8, 10, 12, 14, 16].map(r => `
             <button class="train-weight-chip${set.reps === r ? ' selected' : ''}" onclick="setTrainSetRepsBtn(${i}, ${r})">${r}</button>
           `).join('')}
-          <input class="train-weight-custom" type="number" placeholder="custom" min="1" max="999"
+          <input class="train-weight-custom" type="number" placeholder="${t.train_custom_ph}" min="1" max="999"
             value="${![8,10,12,14,16].includes(set.reps) && set.reps ? set.reps : ''}"
             oninput="setTrainSetRepsCustom(${i}, this.value)" />
         </div>
@@ -2366,6 +2501,7 @@ function removeTrainSet(i) {
 function confirmExerciseSets() {
   const user = getSession(); if (!user) return;
   if (!currentWorkout || !currentExerciseData) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const sets = currentExerciseSets.map((s, i) => {
     const row = document.getElementById(`train-set-row-${i}`);
     let weight = s.weight;
@@ -2379,7 +2515,7 @@ function confirmExerciseSets() {
     return { weight: weight || 0, reps: reps || 1 };
   });
   if (sets.some(s => !s.weight || s.weight <= 0)) {
-    alert('Please select a weight for all sets.');
+    alert(t.train_err_weight);
     return;
   }
   const idx = currentWorkout.exercises.findIndex(e => e.id === currentExerciseData.id);
@@ -2404,11 +2540,12 @@ function openNewExerciseFromTrain() {
 async function confirmFinishWorkout() {
   const user = getSession(); if (!user) return;
   if (!currentWorkout) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   if (currentWorkout.exercises.length === 0) {
-    alert('Please add at least one exercise before finishing the workout.');
+    alert(t.train_err_no_exercise);
     return;
   }
-  if (!confirm('Finish this workout and save it?')) return;
+  if (!confirm(t.train_confirm_finish)) return;
   try {
     const { error } = await db.from('workout_sessions').insert({
       username: user,
@@ -2419,7 +2556,7 @@ async function confirmFinishWorkout() {
     });
     if (error) throw error;
   } catch (e) {
-    alert('Error saving workout. Please try again.');
+    alert(t.train_err_save);
     return;
   }
   currentWorkout = null;
@@ -2427,11 +2564,11 @@ async function confirmFinishWorkout() {
   if (content) content.innerHTML = `
     <div class="train-finish-screen">
       <div style="font-size:72px;margin-bottom:20px">💪</div>
-      <h2 class="train-finish-title">Workout Complete!</h2>
-      <p class="train-finish-sub">Great job! Your workout has been saved.</p>
+      <h2 class="train-finish-title">${t.train_complete_title}</h2>
+      <p class="train-finish-sub">${t.train_complete_sub}</p>
       <div style="display:flex;flex-direction:column;gap:12px;max-width:280px;margin:0 auto">
-        <button class="btn btn-primary" onclick="renderWorkoutTypeSelection()">Start New Workout</button>
-        <a href="home.html" class="btn btn-outline" style="text-align:center;text-decoration:none">← Back to Home</a>
+        <button class="btn btn-primary" onclick="renderWorkoutTypeSelection()">${t.train_new_workout}</button>
+        <a href="home.html" class="btn btn-outline" style="text-align:center;text-decoration:none">${t.train_back_home}</a>
       </div>
     </div>
   `;
@@ -2439,6 +2576,7 @@ async function confirmFinishWorkout() {
 
 function openLastTrainingSpectate() {
   if (!_lastSessionForType) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const s = _lastSessionForType;
   const exercises = s.exercises || [];
   const exHtml = exercises.map(ex => {
@@ -2460,7 +2598,7 @@ function openLastTrainingSpectate() {
         <button class="modal-close" onclick="document.getElementById('last-training-spectate-modal').remove()">×</button>
       </div>
       <div style="overflow-y:auto;flex:1;padding:8px 0">
-        ${exHtml || '<p style="color:var(--gray);text-align:center;padding:20px">No exercises recorded.</p>'}
+        ${exHtml || `<p style="color:var(--gray);text-align:center;padding:20px">${t.train_spectate_no_exercises}</p>`}
       </div>
     </div>`;
   document.body.appendChild(el);
@@ -2656,13 +2794,15 @@ async function loadHomePage() {
     const isPast = day <= today;
     dots.push({ day, trained, isPast });
   }
-  const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const _di18n = DAY_NAMES_I18N[getLang()] || DAY_NAMES_I18N.en;
+  const dayNames = DAYS.map(k => _di18n[k][0]);
   const weighins = getWeighIns(user);
   const todayWeighIn = weighins.find(w => w.date === getTodayKey());
-  const weighInLabel = todayWeighIn ? `⚖️ ${todayWeighIn.weight} kg` : '⚖️ Weigh-in';
+  const _ht = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const weighInLabel = todayWeighIn ? `⚖️ ${todayWeighIn.weight} kg` : _ht.btn_weighin;
   const logs2 = getTrainingLogs(user);
   const todayWorkoutLog = logs2.find(l => l.logged_at && getLocalDateKey(l.logged_at) === getTodayKey());
-  const workoutLabel = todayWorkoutLog ? `✅ ${todayWorkoutLog.title}` : '🏋️ Workout done?';
+  const workoutLabel = todayWorkoutLog ? `✅ ${todayWorkoutLog.title}` : _ht.btn_workout_done;
   const main = document.querySelector('main.home-content');
   main.innerHTML = `
     <div class="home-week-count">
@@ -2954,6 +3094,9 @@ function renderWeeklyChart(user, logs) {
 
   const user = guardHome(); if (!user) return;
 
+  // Apply stored language immediately on every page
+  applyLanguage(getLang());
+
   if (document.getElementById('train-page-content')) {
     // Train page
     loadTrainPage();
@@ -2978,5 +3121,290 @@ function renderWeeklyChart(user, logs) {
   } else if (document.getElementById('prof-birthdate')) {
     // Profile page
     loadProfile();
+  } else if (document.getElementById('social-main')) {
+    // Social page
+    loadSocialPage();
   }
 })();
+
+// ── Social / Friends / Chat ────────────────────────────────────
+let _socialTab = 'friends';
+let _chatPartner = null;
+let _chatChannel = null;
+
+async function loadSocialPage() {
+  const user = guardHome(); if (!user) return;
+  await loadNavbarAvatar(user);
+  injectBmiModal();
+  injectCalorieModal();
+  updateLastActive(user);
+  renderSocialTabs();
+}
+
+async function updateLastActive(username) {
+  try { await db.from('users').update({ last_active: new Date().toISOString() }).eq('username', username); } catch(e) {}
+}
+
+function getLastActiveText(ts) {
+  if (!ts) return '';
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (diff < 120) return t.social_online;
+  if (diff < 3600) return `${t.social_last_active} ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `${t.social_last_active} ${Math.floor(diff/3600)}h`;
+  return `${t.social_last_active} ${Math.floor(diff/86400)}d`;
+}
+
+async function renderSocialTabs() {
+  const user = getSession(); if (!user) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const main = document.getElementById('social-main');
+  if (!main) return;
+  main.classList.remove('chat-active');
+  const { data: pending } = await db.from('friendships').select('id').eq('user_b', user).eq('status', 'pending');
+  const pendingCount = (pending || []).length;
+  main.innerHTML = `
+    <div class="social-tabs">
+      <button class="social-tab-btn${_socialTab==='friends'?' active':''}" onclick="switchSocialTab('friends')">${t.social_friends_tab}</button>
+      <button class="social-tab-btn${_socialTab==='requests'?' active':''}" onclick="switchSocialTab('requests')">
+        ${t.social_requests_tab}${pendingCount>0?`<span class="social-badge">${pendingCount}</span>`:''}
+      </button>
+      <button class="social-tab-btn${_socialTab==='find'?' active':''}" onclick="switchSocialTab('find')">${t.social_find_tab}</button>
+    </div>
+    <div id="social-tab-content"></div>
+  `;
+  loadSocialTabContent();
+}
+
+function switchSocialTab(tab) {
+  _socialTab = tab;
+  document.querySelectorAll('.social-tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['friends','requests','find'][i] === tab);
+  });
+  loadSocialTabContent();
+}
+
+async function loadSocialTabContent() {
+  const user = getSession(); if (!user) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const content = document.getElementById('social-tab-content');
+  if (!content) return;
+
+  if (_socialTab === 'friends') {
+    content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">${t.loading_text}</div>`;
+    const { data: friends } = await db.from('friendships').select('*').or(`user_a.eq.${user},user_b.eq.${user}`).eq('status','accepted');
+    if (!friends || friends.length === 0) {
+      content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">${t.social_no_friends}</div></div>`;
+      return;
+    }
+    const names = friends.map(f => f.user_a === user ? f.user_b : f.user_a);
+    const [{ data: users }, { data: unreadMsgs }] = await Promise.all([
+      db.from('users').select('username,avatar_data,last_active').in('username', names),
+      db.from('messages').select('sender').eq('receiver', user).eq('read', false)
+    ]);
+    const unreadSet = new Set((unreadMsgs || []).map(m => m.sender));
+    content.innerHTML = `<div class="social-friends-list">
+      ${(users||[]).map(u => `
+        <div class="social-friend-item" onclick="openChat('${u.username}')">
+          <div class="social-friend-avatar" style="position:relative">
+            ${u.avatar_data?`<img src="${u.avatar_data}" />`:u.username.charAt(0).toUpperCase()}
+            ${unreadSet.has(u.username)?'<span class="social-unread-dot"></span>':''}
+          </div>
+          <div class="social-friend-info">
+            <div class="social-friend-name">${u.username}</div>
+            <div class="social-friend-status">${getLastActiveText(u.last_active)}</div>
+          </div>
+          <div class="social-friend-actions">
+            <button class="social-chat-btn" style="position:relative" onclick="event.stopPropagation();openChat('${u.username}')">💬${unreadSet.has(u.username)?'<span class="social-unread-dot" style="top:2px;right:2px"></span>':''}</button>
+            <button class="social-profile-btn" onclick="event.stopPropagation();openFriendProfile('${u.username}')">👤</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  } else if (_socialTab === 'requests') {
+    content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">${t.loading_text}</div>`;
+    const { data: reqs } = await db.from('friendships').select('*').eq('user_b', user).eq('status','pending');
+    if (!reqs || reqs.length === 0) {
+      content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-text">${t.social_no_requests}</div></div>`;
+      return;
+    }
+    content.innerHTML = `<div class="social-requests-list">
+      ${reqs.map(r => `
+        <div class="social-request-item">
+          <div class="social-friend-avatar">${r.user_a.charAt(0).toUpperCase()}</div>
+          <div class="social-friend-info"><div class="social-friend-name">${r.user_a}</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="width:auto;padding:8px 14px;font-size:13px" onclick="acceptFriendRequest('${r.id}')">${t.social_accept}</button>
+            <button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:13px;color:var(--red);border-color:var(--red)" onclick="declineFriendRequest('${r.id}')">${t.social_decline}</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  } else if (_socialTab === 'find') {
+    content.innerHTML = `
+      <div style="padding:16px 0">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-input" type="text" id="social-search-input" placeholder="${t.social_add_ph}" style="flex:1" onkeydown="if(event.key==='Enter')searchAndAddUser()" />
+          <button class="btn btn-primary" style="width:auto;padding:12px 18px" onclick="searchAndAddUser()">${t.social_send_request}</button>
+        </div>
+        <div id="social-search-result"></div>
+      </div>`;
+  }
+}
+
+async function searchAndAddUser() {
+  const user = getSession(); if (!user) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const input = document.getElementById('social-search-input');
+  const result = document.getElementById('social-search-result');
+  if (!input || !result) return;
+  const target = input.value.trim().toLowerCase();
+  if (!target) return;
+  result.innerHTML = '';
+  if (target === user.toLowerCase()) {
+    result.innerHTML = `<div class="alert alert-error" style="display:block">${t.social_cant_add_self}</div>`; return;
+  }
+  const { data: tu } = await db.from('users').select('username').eq('username', target).maybeSingle();
+  if (!tu) { result.innerHTML = `<div class="alert alert-error" style="display:block">${t.social_user_not_found}</div>`; return; }
+  const { data: ex } = await db.from('friendships').select('id,status')
+    .or(`and(user_a.eq.${user},user_b.eq.${target}),and(user_a.eq.${target},user_b.eq.${user})`).maybeSingle();
+  if (ex) {
+    const msg = ex.status === 'accepted' ? t.social_already_friends : t.social_request_exists;
+    result.innerHTML = `<div class="alert alert-error" style="display:block">${msg}</div>`; return;
+  }
+  const { error } = await db.from('friendships').insert({ user_a: user, user_b: target, status: 'pending' });
+  if (error) { result.innerHTML = `<div class="alert alert-error" style="display:block">${t.err_connection}</div>`; return; }
+  result.innerHTML = `<div class="alert alert-success" style="display:block">${t.social_request_sent}</div>`;
+  input.value = '';
+}
+
+async function acceptFriendRequest(id) {
+  await db.from('friendships').update({ status: 'accepted' }).eq('id', id);
+  _socialTab = 'friends';
+  renderSocialTabs();
+}
+
+async function declineFriendRequest(id) {
+  await db.from('friendships').delete().eq('id', id);
+  renderSocialTabs();
+}
+
+// ── Chat ──────────────────────────────────────────────────────
+async function openChat(friendUsername) {
+  const user = getSession(); if (!user) return;
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  _chatPartner = friendUsername;
+  if (_chatChannel) { db.removeChannel(_chatChannel); _chatChannel = null; }
+  const main = document.getElementById('social-main');
+  if (!main) return;
+  main.classList.add('chat-active');
+  main.innerHTML = `
+    <div class="chat-header">
+      <button class="chat-back-btn" onclick="exitChat()">←</button>
+      <div class="chat-header-info" onclick="openFriendProfile('${friendUsername}')">
+        <div class="chat-partner-name">${friendUsername}</div>
+        <div class="chat-partner-status" id="chat-status"></div>
+      </div>
+      <button class="chat-profile-btn" onclick="openFriendProfile('${friendUsername}')">👤</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div style="text-align:center;padding:40px;color:var(--gray)">${t.loading_text}</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="form-input" type="text" id="chat-input" placeholder="${t.social_message_ph}"
+        style="flex:1;margin:0" onkeydown="if(event.key==='Enter')sendChatMessage()" />
+      <button class="btn btn-primary" style="width:auto;padding:12px 16px;margin:0" onclick="sendChatMessage()">${t.social_send}</button>
+    </div>`;
+  const { data: partner } = await db.from('users').select('last_active').eq('username', friendUsername).maybeSingle();
+  const statusEl = document.getElementById('chat-status');
+  if (statusEl && partner) statusEl.textContent = getLastActiveText(partner.last_active);
+  await loadChatMessages(user, friendUsername);
+  db.from('messages').update({ read: true }).eq('sender', friendUsername).eq('receiver', user).eq('read', false).then(() => {});
+  _chatChannel = db.channel(`chat-${[user,friendUsername].sort().join('-')}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+      const msg = payload.new;
+      if ((msg.sender===user&&msg.receiver===friendUsername)||(msg.sender===friendUsername&&msg.receiver===user)) {
+        appendChatMessage(msg, user);
+        scrollChatToBottom();
+        if (msg.sender === friendUsername) db.from('messages').update({ read: true }).eq('id', msg.id).then(()=>{});
+      }
+    }).subscribe();
+}
+
+async function loadChatMessages(user, friend) {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const { data: msgs } = await db.from('messages').select('*')
+    .or(`and(sender.eq.${user},receiver.eq.${friend}),and(sender.eq.${friend},receiver.eq.${user})`)
+    .order('created_at', { ascending: true }).limit(200);
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  if (!msgs || msgs.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">${t.social_no_messages}</div>`; return;
+  }
+  container.innerHTML = '';
+  msgs.forEach(msg => appendChatMessage(msg, user));
+  scrollChatToBottom();
+}
+
+function appendChatMessage(msg, currentUser) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  const isMine = msg.sender === currentUser;
+  const time = new Date(msg.created_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  const div = document.createElement('div');
+  div.className = `chat-msg ${isMine ? 'chat-msg-mine' : 'chat-msg-theirs'}`;
+  div.innerHTML = `<div class="chat-bubble">${msg.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div><div class="chat-time">${time}</div>`;
+  container.appendChild(div);
+}
+
+function scrollChatToBottom() {
+  const c = document.getElementById('chat-messages');
+  if (c) c.scrollTop = c.scrollHeight;
+}
+
+async function sendChatMessage() {
+  const user = getSession(); if (!user || !_chatPartner) return;
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await db.from('messages').insert({ sender: user, receiver: _chatPartner, text });
+}
+
+function exitChat() {
+  if (_chatChannel) { db.removeChannel(_chatChannel); _chatChannel = null; }
+  _chatPartner = null;
+  const main = document.getElementById('social-main');
+  if (main) main.classList.remove('chat-active');
+  _socialTab = 'friends';
+  renderSocialTabs();
+}
+
+// ── Friend Profile Modal ──────────────────────────────────────
+async function openFriendProfile(username) {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const existing = document.getElementById('friend-profile-modal');
+  if (existing) existing.remove();
+  const { data: u } = await db.from('users').select('username,avatar_data,last_active').eq('username', username).maybeSingle();
+  if (!u) return;
+  const el = document.createElement('div');
+  el.id = 'friend-profile-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-width:340px;text-align:center">
+      <div class="modal-header">
+        <div class="modal-title">${u.username}</div>
+        <button class="modal-close" onclick="document.getElementById('friend-profile-modal').remove()">×</button>
+      </div>
+      <div style="padding:20px 0">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden">
+          ${u.avatar_data?`<img src="${u.avatar_data}" style="width:80px;height:80px;object-fit:cover" />`:u.username.charAt(0).toUpperCase()}
+        </div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px">${u.username}</div>
+        <div style="font-size:13px;color:var(--gray);margin-bottom:20px">${getLastActiveText(u.last_active)}</div>
+        <button class="btn btn-primary" style="width:auto;padding:12px 28px" onclick="document.getElementById('friend-profile-modal').remove();openChat('${u.username}')">💬 Chat</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}

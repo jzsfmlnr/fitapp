@@ -71,8 +71,8 @@
           <div class="form-group">
             <label class="form-label" for="prof-language" data-i18n="label_language">Language</label>
             <select class="form-input form-select" id="prof-language" onchange="setLang(this.value); applyLanguage(this.value)">
+              <option value="en" selected>English</option>
               <option value="de">Deutsch</option>
-              <option value="en">English</option>
               <option value="hu">Magyar</option>
             </select>
           </div>
@@ -84,11 +84,11 @@
       </div>
     </main>
     <nav class="bottom-nav">
-      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span>Home</span></a>
-      <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span>Routine</span></a>
-      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span>Train</span></a>
-      <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span>Diary</span></a>
-      <a href="profile.html" class="bottom-nav-item active"><span class="bn-icon">👤</span><span>Profile</span></a>
+      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+      <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
+      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
+      <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
+      <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
     </nav>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
