@@ -5,7 +5,8 @@
       "Bash(do)",
       "Bash(sed -i 's|<a href=\"\"profile\\\\.html\"\" class=\"\"bottom-nav-item\\\\\\( active\\\\\\)\\\\?\"\"><span class=\"\"bn-icon\"\">👤</span><span data-i18n=\"\"bn_profile\"\">Profile</span></a>|<a href=\"\"social.html\"\" class=\"\"bottom-nav-item\"\"><span class=\"\"bn-icon\"\">👥</span><span data-i18n=\"\"bn_social\"\">Social</span></a>|g' \"$f\")",
       "Bash(echo \"Updated: $f\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(gh repo:*)"
     ]
   }
 }

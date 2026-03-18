@@ -142,6 +142,7 @@ const TRANSLATIONS = {
     carousel_arms_sub:'Bizeps · Trizeps', carousel_upper_sub:'Ganzer Oberkörper',
     carousel_lower_sub:'Beine · Bauch', carousel_legs_sub:'Oberschenkel · Hamstrings',
     pr_title:'Neuer Rekord!', pr_msg:'Neue Bestleistung bei {ex}: {kg} kg.',
+    pw_change_btn:'Passwort ändern', pw_old:'Altes Passwort', pw_new:'Neues Passwort', pw_confirm:'Passwort bestätigen', pw_mismatch:'Passwörter stimmen nicht überein.', pw_wrong:'Altes Passwort ist falsch.', pw_success:'Passwort erfolgreich geändert.', pw_short:'Mindestens 4 Zeichen.',
     imprint_btn:'Impressum', privacy_btn:'Datenschutz',
     imprint_title:'Impressum', privacy_title:'Datenschutzerklärung',
     imprint_note:'Diese App ist ein privates, nicht-kommerzielles Projekt.',
@@ -280,6 +281,7 @@ const TRANSLATIONS = {
     carousel_arms_sub:'Biceps · Triceps', carousel_upper_sub:'Full Upper Body',
     carousel_lower_sub:'Legs · Abs', carousel_legs_sub:'Quads · Hamstrings',
     pr_title:'New Record!', pr_msg:'New personal best on {ex}: {kg} kg.',
+    pw_change_btn:'Change Password', pw_old:'Current Password', pw_new:'New Password', pw_confirm:'Confirm Password', pw_mismatch:'Passwords do not match.', pw_wrong:'Current password is incorrect.', pw_success:'Password changed successfully.', pw_short:'At least 4 characters.',
     imprint_btn:'Imprint', privacy_btn:'Privacy Policy',
     imprint_title:'Imprint', privacy_title:'Privacy Policy',
     imprint_note:'This app is a private, non-commercial project.',
@@ -417,6 +419,7 @@ const TRANSLATIONS = {
     empty_workouts:'Még nincsenek mentett edzések.',
     label_name:'Név',
     pr_title:'Új rekord!', pr_msg:'{ex}: új személyes rekord – {kg} kg.',
+    pw_change_btn:'Jelszó módosítása', pw_old:'Jelenlegi jelszó', pw_new:'Új jelszó', pw_confirm:'Jelszó megerősítése', pw_mismatch:'A jelszavak nem egyeznek.', pw_wrong:'A jelenlegi jelszó helytelen.', pw_success:'Jelszó sikeresen megváltoztatva.', pw_short:'Legalább 4 karakter.',
     imprint_btn:'Impresszum', privacy_btn:'Adatvédelem',
     imprint_title:'Impresszum', privacy_title:'Adatvédelmi tájékoztató',
     imprint_note:'Ez az alkalmazás egy magán, nem kereskedelmi projekt.',
@@ -465,9 +468,25 @@ async function hashPassword(pw) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-function getSession()          { return sessionStorage.getItem('hc_session'); }
-function setSession(u)         { sessionStorage.setItem('hc_session', u); }
-function clearSession()        { sessionStorage.removeItem('hc_session'); }
+function getSession() {
+  const u = localStorage.getItem('hc_session');
+  const t = localStorage.getItem('hc_session_time');
+  if (!u || !t) return null;
+  if (Date.now() - Number(t) > 7 * 24 * 60 * 60 * 1000) {
+    clearSession();
+    return null;
+  }
+  localStorage.setItem('hc_session_time', Date.now());
+  return u;
+}
+function setSession(u) {
+  localStorage.setItem('hc_session', u);
+  localStorage.setItem('hc_session_time', Date.now());
+}
+function clearSession() {
+  localStorage.removeItem('hc_session');
+  localStorage.removeItem('hc_session_time');
+}
 
 function showAlert(id, msg, type = 'error') {
   const el = document.getElementById(id);
@@ -3214,6 +3233,17 @@ async function renderSocialTabs() {
   const main = document.getElementById('social-main');
   if (!main) return;
   main.classList.remove('chat-active');
+  if (user === 'FitMol AI') {
+    _socialTab = 'admin';
+    main.innerHTML = `
+      <div class="social-tabs">
+        <button class="social-tab-btn active">All Users</button>
+      </div>
+      <div id="social-tab-content"></div>
+    `;
+    loadAdminUserList();
+    return;
+  }
   const { data: pending } = await db.from('friendships').select('id').eq('user_b', user).eq('status', 'pending');
   const pendingCount = (pending || []).length;
   main.innerHTML = `
@@ -3459,6 +3489,83 @@ function exitChat() {
   renderSocialTabs();
 }
 
+// ── Admin User List (FitMol AI only) ──────────────────────────
+async function loadAdminUserList() {
+  const content = document.getElementById('social-tab-content');
+  if (!content) return;
+  content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">Loading users...</div>`;
+  const [{ data: users }, { data: activity }] = await Promise.all([
+    db.from('users').select('username,avatar_data,last_active,created_at').neq('username', 'FitMol AI').order('last_active', { ascending: false, nullsFirst: false }),
+    db.from('user_activity').select('username,visit_count,last_visit')
+  ]);
+  const actMap = {};
+  (activity || []).forEach(a => actMap[a.username] = a);
+  if (!users || users.length === 0) {
+    content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No users yet</div></div>`;
+    return;
+  }
+  content.innerHTML = `<div class="social-friends-list">
+    ${users.map(u => {
+      const act = actMap[u.username];
+      const visits = act ? act.visit_count : 0;
+      return `
+      <div class="social-friend-item" onclick="openAdminUserProfile('${u.username}')">
+        <div class="social-friend-avatar" style="position:relative">
+          ${u.avatar_data ? `<img src="${u.avatar_data}" />` : u.username.charAt(0).toUpperCase()}
+        </div>
+        <div class="social-friend-info">
+          <div class="social-friend-name">${u.username}</div>
+          <div class="social-friend-status">${getLastActiveText(u.last_active)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:11px;color:var(--gray)">
+          <span>${visits} visits</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function openAdminUserProfile(username) {
+  const existing = document.getElementById('admin-profile-modal');
+  if (existing) existing.remove();
+  const [{ data: u }, { data: act }] = await Promise.all([
+    db.from('users').select('username,avatar_data,last_active,created_at,language,gender').eq('username', username).maybeSingle(),
+    db.from('user_activity').select('visit_count,last_visit').eq('username', username).maybeSingle()
+  ]);
+  if (!u) return;
+  const visits = act ? act.visit_count : 0;
+  const lastVisit = act && act.last_visit ? new Date(act.last_visit).toLocaleString() : '—';
+  const joined = u.created_at ? new Date(u.created_at).toLocaleDateString() : '—';
+  const el = document.createElement('div');
+  el.id = 'admin-profile-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-width:380px;text-align:center">
+      <div class="modal-header">
+        <div class="modal-title">${u.username}</div>
+        <button class="modal-close" onclick="document.getElementById('admin-profile-modal').remove()">×</button>
+      </div>
+      <div style="padding:20px 0">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden">
+          ${u.avatar_data ? `<img src="${u.avatar_data}" style="width:80px;height:80px;object-fit:cover" />` : u.username.charAt(0).toUpperCase()}
+        </div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:12px">${u.username}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;text-align:left;padding:0 16px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Last Active</span><span style="font-weight:600">${getLastActiveText(u.last_active)}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Total Visits</span><span style="font-weight:600">${visits}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Last Visit</span><span style="font-weight:600">${lastVisit}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Joined</span><span style="font-weight:600">${joined}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Language</span><span style="font-weight:600">${(u.language || '—').toUpperCase()}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Gender</span><span style="font-weight:600">${u.gender || '—'}</span></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+          <button class="btn btn-primary" style="width:auto;padding:10px 22px;font-size:13px" onclick="document.getElementById('admin-profile-modal').remove();openChat('${u.username}')">💬 Chat</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
 // ── Friend Profile Modal ──────────────────────────────────────
 const AI_AVATAR_SVG = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><defs><radialGradient id='g' cx='40%25' cy='35%25' r='65%25'><stop offset='0%25' stop-color='%234d9fff'/><stop offset='100%25' stop-color='%231a6fff'/></radialGradient></defs><circle cx='24' cy='24' r='24' fill='url(%23g)'/><text x='24' y='31' text-anchor='middle' font-size='22' font-family='Arial' fill='white'>&#9889;</text></svg>`;
 
@@ -3506,6 +3613,62 @@ async function openFriendProfile(username) {
       </div>
     </div>`;
   document.body.appendChild(el);
+}
+
+// ── Change Password Modal ─────────────────────────────────────
+function openChangePasswordModal() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const existing = document.getElementById('pw-change-modal');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'pw-change-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-width:380px">
+      <div class="modal-header">
+        <div class="modal-title">${t.pw_change_btn}</div>
+        <button class="modal-close" onclick="document.getElementById('pw-change-modal').remove()">×</button>
+      </div>
+      <div style="padding:16px 0;display:flex;flex-direction:column;gap:12px">
+        <div id="pw-alert" class="alert alert-error"></div>
+        <div id="pw-success" class="alert alert-success"></div>
+        <input class="form-input" type="password" id="pw-new" placeholder="${t.pw_new}" />
+        <input class="form-input" type="password" id="pw-confirm" placeholder="${t.pw_confirm}" />
+        <button class="btn btn-primary" onclick="submitChangePassword()">✓ ${t.pw_change_btn}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+async function submitChangePassword() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const alertEl = document.getElementById('pw-alert');
+  const successEl = document.getElementById('pw-success');
+  if (alertEl) { alertEl.style.display = 'none'; alertEl.textContent = ''; }
+  if (successEl) { successEl.style.display = 'none'; successEl.textContent = ''; }
+
+  const newPw = document.getElementById('pw-new').value;
+  const confirmPw = document.getElementById('pw-confirm').value;
+
+  if (newPw.length < 4) {
+    if (alertEl) { alertEl.textContent = t.pw_short; alertEl.style.display = 'block'; }
+    return;
+  }
+  if (newPw !== confirmPw) {
+    if (alertEl) { alertEl.textContent = t.pw_mismatch; alertEl.style.display = 'block'; }
+    return;
+  }
+
+  const user = getSession();
+  if (!user) return;
+
+  const newHash = await hashPassword(newPw);
+  await db.from('users').update({ password_hash: newHash }).eq('username', user);
+  if (successEl) { successEl.textContent = t.pw_success; successEl.style.display = 'block'; }
+  document.getElementById('pw-old').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  setTimeout(() => { const m = document.getElementById('pw-change-modal'); if (m) m.remove(); }, 1500);
 }
 
 // ── PR Popup ──────────────────────────────────────────────────
