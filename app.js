@@ -3152,6 +3152,10 @@ function renderWeeklyChart(user, logs) {
     // Social page
     loadSocialPage();
   }
+  // Check inactivity and send FitMol AI message if needed (before updating last_active)
+  checkInactivityAndNotify(user);
+  // Update last_active on every page load (reset inactivity clock)
+  updateLastActive(user);
   // Check unread messages and show dot on Social footer button
   checkSocialUnreadDot();
 })();
@@ -3166,12 +3170,32 @@ async function loadSocialPage() {
   await loadNavbarAvatar(user);
   injectBmiModal();
   injectCalorieModal();
-  updateLastActive(user);
   renderSocialTabs();
 }
 
 async function updateLastActive(username) {
   try { await db.from('users').update({ last_active: new Date().toISOString() }).eq('username', username); } catch(e) {}
+}
+
+async function checkInactivityAndNotify(username) {
+  try {
+    const { data: u } = await db.from('users').select('last_active').eq('username', username).maybeSingle();
+    if (!u || !u.last_active) return;
+    const daysSince = (Date.now() - new Date(u.last_active).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSince < 3) return;
+    // Check if a FitMol AI message was already sent after last_active (= already notified this cycle)
+    const { data: existing } = await db.from('messages')
+      .select('id').eq('sender', 'FitMol AI').eq('receiver', username)
+      .gte('created_at', u.last_active).limit(1).maybeSingle();
+    if (existing) return;
+    const msgs = [
+      "Hey! We haven't seen you in a while 👀 Your training plan is still waiting for you. Come back and crush it! 💪",
+      "Missing you at the gym! It's been a few days — time to get back on track. You've got this! ⚡",
+      "Hey, long time no see! 🏋️ Don't let your progress slip. Jump back in whenever you're ready!"
+    ];
+    const text = msgs[Math.floor(Math.random() * msgs.length)];
+    await db.from('messages').insert({ sender: 'FitMol AI', receiver: username, text, read: false });
+  } catch(e) {}
 }
 
 function getLastActiveText(ts) {
@@ -3221,19 +3245,42 @@ async function loadSocialTabContent() {
 
   if (_socialTab === 'friends') {
     content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray)">${t.loading_text}</div>`;
-    const { data: friends } = await db.from('friendships').select('*').or(`user_a.eq.${user},user_b.eq.${user}`).eq('status','accepted');
-    if (!friends || friends.length === 0) {
+    const [{ data: friends }, { data: aiMsgs }, { data: unreadMsgs }] = await Promise.all([
+      db.from('friendships').select('*').or(`user_a.eq.${user},user_b.eq.${user}`).eq('status','accepted'),
+      db.from('messages').select('read').eq('sender', 'FitMol AI').eq('receiver', user).order('created_at', { ascending: false }).limit(1),
+      db.from('messages').select('sender').eq('receiver', user).eq('read', false)
+    ]);
+    const hasAiMsg = aiMsgs && aiMsgs.length > 0;
+    const aiUnread = hasAiMsg && aiMsgs[0].read === false;
+    const unreadSet = new Set((unreadMsgs || []).map(m => m.sender));
+    if (!hasAiMsg && (!friends || friends.length === 0)) {
       content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">${t.social_no_friends}</div></div>`;
       return;
     }
-    const names = friends.map(f => f.user_a === user ? f.user_b : f.user_a);
-    const [{ data: users }, { data: unreadMsgs }] = await Promise.all([
-      db.from('users').select('username,avatar_data,last_active').in('username', names),
-      db.from('messages').select('sender').eq('receiver', user).eq('read', false)
-    ]);
-    const unreadSet = new Set((unreadMsgs || []).map(m => m.sender));
+    const names = (friends || []).map(f => f.user_a === user ? f.user_b : f.user_a);
+    let usersData = [];
+    if (names.length > 0) {
+      const { data: ud } = await db.from('users').select('username,avatar_data,last_active').in('username', names);
+      usersData = ud || [];
+    }
+
+    const aiEntry = hasAiMsg ? `
+      <div class="social-friend-item" onclick="openChat('FitMol AI')">
+        <div class="social-friend-avatar" style="position:relative;padding:0;overflow:hidden">
+          <img src="${AI_AVATAR_SVG}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />
+          ${aiUnread?'<span class="social-unread-dot"></span>':''}
+        </div>
+        <div class="social-friend-info">
+          <div class="social-friend-name">FitMol AI</div>
+          <div class="social-friend-status" style="color:var(--blue)">Assistant</div>
+        </div>
+        <div class="social-friend-actions">
+          
+        </div>
+      </div>` : '';
     content.innerHTML = `<div class="social-friends-list">
-      ${(users||[]).map(u => `
+      ${aiEntry}
+      ${usersData.map(u => `
         <div class="social-friend-item" onclick="openChat('${u.username}')">
           <div class="social-friend-avatar" style="position:relative">
             ${u.avatar_data?`<img src="${u.avatar_data}" />`:u.username.charAt(0).toUpperCase()}
@@ -3244,7 +3291,6 @@ async function loadSocialTabContent() {
             <div class="social-friend-status">${getLastActiveText(u.last_active)}</div>
           </div>
           <div class="social-friend-actions">
-            <button class="social-chat-btn" style="position:relative" onclick="event.stopPropagation();openChat('${u.username}')">💬${unreadSet.has(u.username)?'<span class="social-unread-dot" style="top:2px;right:2px"></span>':''}</button>
             <button class="social-profile-btn" onclick="event.stopPropagation();openFriendProfile('${u.username}')">👤</button>
           </div>
         </div>`).join('')}
@@ -3327,9 +3373,11 @@ async function openChat(friendUsername) {
   const main = document.getElementById('social-main');
   if (!main) return;
   main.classList.add('chat-active');
+  document.body.classList.add('chat-mode');
   main.innerHTML = `
     <div class="chat-header">
       <button class="chat-back-btn" onclick="exitChat()">←</button>
+      ${friendUsername === 'FitMol AI' ? `<img src="${AI_AVATAR_SVG}" style="width:36px;height:36px;border-radius:50%;margin-right:2px;flex-shrink:0" />` : ''}
       <div class="chat-header-info" onclick="openFriendProfile('${friendUsername}')">
         <div class="chat-partner-name">${friendUsername}</div>
         <div class="chat-partner-status" id="chat-status"></div>
@@ -3339,14 +3387,14 @@ async function openChat(friendUsername) {
     <div class="chat-messages" id="chat-messages">
       <div style="text-align:center;padding:40px;color:var(--gray)">${t.loading_text}</div>
     </div>
-    <div class="chat-input-row">
+    ${friendUsername === 'FitMol AI' ? `<div class="chat-input-row" style="justify-content:center;color:var(--gray);font-size:13px;padding:10px 16px">🤖 FitMol AI · Read-only</div>` : `<div class="chat-input-row">
       <input class="form-input" type="text" id="chat-input" placeholder="${t.social_message_ph}"
         style="flex:1;margin:0" onkeydown="if(event.key==='Enter')sendChatMessage()" />
       <button class="btn btn-primary" style="width:auto;margin:0" onclick="sendChatMessage()">${t.social_send}</button>
-    </div>`;
+    </div>`}`;
   const { data: partner } = await db.from('users').select('last_active').eq('username', friendUsername).maybeSingle();
   const statusEl = document.getElementById('chat-status');
-  if (statusEl && partner) statusEl.textContent = getLastActiveText(partner.last_active);
+  if (statusEl) statusEl.textContent = friendUsername === 'FitMol AI' ? '🤖 Assistant' : (partner ? getLastActiveText(partner.last_active) : '');
   await loadChatMessages(user, friendUsername);
   db.from('messages').update({ read: true }).eq('sender', friendUsername).eq('receiver', user).eq('read', false).then(() => {});
   _chatChannel = db.channel(`chat-${[user,friendUsername].sort().join('-')}`)
@@ -3404,6 +3452,7 @@ async function sendChatMessage() {
 function exitChat() {
   if (_chatChannel) { db.removeChannel(_chatChannel); _chatChannel = null; }
   _chatPartner = null;
+  document.body.classList.remove('chat-mode');
   const main = document.getElementById('social-main');
   if (main) main.classList.remove('chat-active');
   _socialTab = 'friends';
@@ -3411,15 +3460,36 @@ function exitChat() {
 }
 
 // ── Friend Profile Modal ──────────────────────────────────────
+const AI_AVATAR_SVG = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><defs><radialGradient id='g' cx='40%25' cy='35%25' r='65%25'><stop offset='0%25' stop-color='%234d9fff'/><stop offset='100%25' stop-color='%231a6fff'/></radialGradient></defs><circle cx='24' cy='24' r='24' fill='url(%23g)'/><text x='24' y='31' text-anchor='middle' font-size='22' font-family='Arial' fill='white'>&#9889;</text></svg>`;
+
 async function openFriendProfile(username) {
   const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
   const existing = document.getElementById('friend-profile-modal');
   if (existing) existing.remove();
-  const { data: u } = await db.from('users').select('username,avatar_data,last_active').eq('username', username).maybeSingle();
-  if (!u) return;
   const el = document.createElement('div');
   el.id = 'friend-profile-modal';
   el.className = 'modal-overlay open';
+  if (username === 'FitMol AI') {
+    el.innerHTML = `
+      <div class="modal-card" style="max-width:340px;text-align:center">
+        <div class="modal-header">
+          <div class="modal-title">FitMol AI</div>
+          <button class="modal-close" onclick="document.getElementById('friend-profile-modal').remove()">×</button>
+        </div>
+        <div style="padding:20px 0">
+          <div style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;overflow:hidden">
+            <img src="${AI_AVATAR_SVG}" style="width:80px;height:80px;object-fit:cover" />
+          </div>
+          <div style="font-size:20px;font-weight:700;margin-bottom:4px">FitMol AI</div>
+          <div style="font-size:13px;color:var(--blue);margin-bottom:20px">🤖 Assistant</div>
+          <button class="btn btn-primary" style="width:auto;padding:12px 28px" onclick="document.getElementById('friend-profile-modal').remove();openChat('FitMol AI')">💬 Chat</button>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+    return;
+  }
+  const { data: u } = await db.from('users').select('username,avatar_data,last_active').eq('username', username).maybeSingle();
+  if (!u) return;
   el.innerHTML = `
     <div class="modal-card" style="max-width:340px;text-align:center">
       <div class="modal-header">

@@ -963,6 +963,31 @@ select.form-select option {
   padding: 4px 4px 6px;
 }
 
+/* ========== EXERCISE MODAL COMPACT ========== */
+.ex-modal-card {
+  padding: 16px 18px;
+  max-width: 420px;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ex-modal-card .modal-header { margin-bottom: 8px; flex-shrink: 0; }
+.ex-modal-card .modal-title { font-size: 16px; }
+.ex-modal-card .form-group { margin-bottom: 8px; }
+.ex-modal-card .form-label { font-size: 11px; margin-bottom: 3px; letter-spacing: 0.5px; }
+.ex-modal-card .form-input { padding: 7px 11px; font-size: 13px; }
+.ex-modal-card .form-textarea { padding: 6px 11px; font-size: 13px; min-height: unset; resize: none; }
+.ex-modal-card .tag-selector { gap: 5px; margin-top: 2px; }
+.ex-modal-card .tag-chip { padding: 4px 10px; font-size: 11px; }
+.ex-modal-card .tab-bar { margin-bottom: 6px !important; }
+.ex-modal-card .tab-btn { padding: 7px; font-size: 12px; }
+.ex-modal-card .img-picker-preview { height: 72px; }
+.ex-modal-card .img-picker-placeholder div:first-child { font-size: 18px; margin-bottom: 2px; }
+.ex-modal-card .img-picker-placeholder { font-size: 11px; }
+.ex-modal-card #modal-save-btn { padding: 10px 16px; margin-top: 4px; flex-shrink: 0; }
+.ex-modal-card #modal-alert { margin-bottom: 6px; }
+
 /* ========== EXERCISE TAGS ========== */
 .tag-selector {
   display: flex;
@@ -2580,8 +2605,6 @@ select.form-select option {
 .chat-partner-name { font-weight:700; font-size:16px; }
 .chat-partner-status { font-size:12px; color:var(--gray); }
 .chat-profile-btn { width:36px; height:36px; border:none; background:var(--card-2); border-radius:50%; font-size:16px; cursor:pointer; }
-.chat-messages { flex:1; overflow-y:auto; padding:16px; padding-bottom:80px; display:flex; flex-direction:column; gap:8px; }
-.chat-input-row { position:fixed; bottom:68px; left:0; right:0; display:flex; gap:8px; padding:6px 12px; background:var(--card); border-top:1px solid var(--border); z-index:50; }
 .chat-input-row .form-input { padding:8px 12px; font-size:14px; }
 .chat-input-row .btn { padding:8px 14px; font-size:14px; }
 .chat-msg { display:flex; flex-direction:column; max-width:75%; }
@@ -2591,7 +2614,13 @@ select.form-select option {
 .chat-msg-mine .chat-bubble { background:var(--blue); color:#fff; border-bottom-right-radius:4px; }
 .chat-msg-theirs .chat-bubble { background:var(--card-2); color:var(--black); border-bottom-left-radius:4px; }
 .chat-time { font-size:11px; color:var(--gray); margin-top:3px; padding:0 4px; }
-#social-main.chat-active { display:flex; flex-direction:column; padding:0; }
+/* Chat mode – full fixed layout, no scroll */
+body.chat-mode { overflow: hidden; }
+body.chat-mode .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+#social-main.chat-active { display: block; padding: 0; overflow: hidden; position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
+#social-main.chat-active .chat-header { position: fixed; top: 60px; left: 0; right: 0; z-index: 99; background: var(--card); border-bottom: 1px solid var(--border); }
+#social-main.chat-active .chat-messages { position: fixed; top: 120px; bottom: 130px; left: 0; right: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.chat-input-row { position: fixed; bottom: 95px; left: 0; right: 0; display: flex; gap: 8px; padding: 6px 12px; background: var(--card); border-top: 1px solid var(--border); z-index: 50; }
 .social-unread-dot { position:absolute; width:10px; height:10px; background:#e74c3c; border-radius:50%; top:0; right:0; border:2px solid var(--bg); }
 .bn-social-unread-dot { position:absolute; top:2px; right:2px; width:9px; height:9px; background:#e74c3c; border-radius:50%; border:2px solid var(--navbar-bg); pointer-events:none; }
 
