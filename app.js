@@ -141,6 +141,13 @@ const TRANSLATIONS = {
     carousel_pull_sub:'Rücken · Bizeps', carousel_push_sub:'Brust · Trizeps',
     carousel_arms_sub:'Bizeps · Trizeps', carousel_upper_sub:'Ganzer Oberkörper',
     carousel_lower_sub:'Beine · Bauch', carousel_legs_sub:'Oberschenkel · Hamstrings',
+    pr_title:'Neuer Rekord!', pr_msg:'Neue Bestleistung bei {ex}: {kg} kg.',
+    imprint_btn:'Impressum', privacy_btn:'Datenschutz',
+    imprint_title:'Impressum', privacy_title:'Datenschutzerklärung',
+    imprint_note:'Diese App ist ein privates, nicht-kommerzielles Projekt.',
+    privacy_data_title:'Datenspeicherung', privacy_data_body:'Wir speichern ausschließlich die Daten, die du aktiv eingibst (Benutzername, Trainings, Gewicht). Keine Weitergabe an Dritte.',
+    privacy_host_body:'Die Daten werden über Supabase (EU-Server) gespeichert. Details: supabase.com/privacy',
+    privacy_contact:'Kontakt',
   },
   en: {
     nav_exercises:'Exercises', nav_training:'Training', nav_plan:'Plan',
@@ -272,6 +279,13 @@ const TRANSLATIONS = {
     carousel_pull_sub:'Back · Biceps', carousel_push_sub:'Chest · Triceps',
     carousel_arms_sub:'Biceps · Triceps', carousel_upper_sub:'Full Upper Body',
     carousel_lower_sub:'Legs · Abs', carousel_legs_sub:'Quads · Hamstrings',
+    pr_title:'New Record!', pr_msg:'New personal best on {ex}: {kg} kg.',
+    imprint_btn:'Imprint', privacy_btn:'Privacy Policy',
+    imprint_title:'Imprint', privacy_title:'Privacy Policy',
+    imprint_note:'This app is a private, non-commercial project.',
+    privacy_data_title:'Data Storage', privacy_data_body:'We only store data you actively enter (username, trainings, weight). No sharing with third parties.',
+    privacy_host_body:'Data is stored via Supabase (EU servers). Details: supabase.com/privacy',
+    privacy_contact:'Contact',
   },
   hu: {
     nav_exercises:'Gyakorlatok', nav_training:'Edzés', nav_plan:'Terv',
@@ -402,6 +416,13 @@ const TRANSLATIONS = {
     routine_plan_title:'Edzésterv', routine_plan_desc:'Tervezd meg a heted',
     empty_workouts:'Még nincsenek mentett edzések.',
     label_name:'Név',
+    pr_title:'Új rekord!', pr_msg:'{ex}: új személyes rekord – {kg} kg.',
+    imprint_btn:'Impresszum', privacy_btn:'Adatvédelem',
+    imprint_title:'Impresszum', privacy_title:'Adatvédelmi tájékoztató',
+    imprint_note:'Ez az alkalmazás egy magán, nem kereskedelmi projekt.',
+    privacy_data_title:'Adattárolás', privacy_data_body:'Csak az általad aktívan megadott adatokat tároljuk (felhasználónév, edzések, testsúly). Harmadik félnek nem adjuk tovább.',
+    privacy_host_body:'Az adatok tárolása Supabase-en (EU-szerver) történik. Részletek: supabase.com/privacy',
+    privacy_contact:'Kapcsolat',
   }
 };
 
@@ -2498,7 +2519,7 @@ function removeTrainSet(i) {
   renderTrainSetRows();
 }
 
-function confirmExerciseSets() {
+async function confirmExerciseSets() {
   const user = getSession(); if (!user) return;
   if (!currentWorkout || !currentExerciseData) return;
   const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
@@ -2522,9 +2543,15 @@ function confirmExerciseSets() {
   const entry = { id: currentExerciseData.id, name: currentExerciseData.name, abbreviation: currentExerciseData.abbreviation, image_data: currentExerciseData.image_data, tag: currentExerciseData.tag, sets };
   if (idx >= 0) currentWorkout.exercises[idx] = entry;
   else currentWorkout.exercises.push(entry);
-  if (sets.length > 0 && sets[0].weight > 0) {
+  const maxWeight = Math.max(...sets.map(s => s.weight));
+  if (maxWeight > 0) {
+    const { data: existing } = await db.from('exercise_last_weights')
+      .select('weight').eq('username', user).eq('exercise_id', currentExerciseData.id).maybeSingle();
+    if (existing && maxWeight > existing.weight) {
+      showPRPopup(currentExerciseData.name, maxWeight);
+    }
     db.from('exercise_last_weights').upsert(
-      { username: user, exercise_id: currentExerciseData.id, weight: sets[0].weight },
+      { username: user, exercise_id: currentExerciseData.id, weight: maxWeight },
       { onConflict: 'username,exercise_id' }
     ).then(() => {}).catch(() => {});
   }
@@ -3315,7 +3342,7 @@ async function openChat(friendUsername) {
     <div class="chat-input-row">
       <input class="form-input" type="text" id="chat-input" placeholder="${t.social_message_ph}"
         style="flex:1;margin:0" onkeydown="if(event.key==='Enter')sendChatMessage()" />
-      <button class="btn btn-primary" style="width:auto;padding:12px 16px;margin:0" onclick="sendChatMessage()">${t.social_send}</button>
+      <button class="btn btn-primary" style="width:auto;margin:0" onclick="sendChatMessage()">${t.social_send}</button>
     </div>`;
   const { data: partner } = await db.from('users').select('last_active').eq('username', friendUsername).maybeSingle();
   const statusEl = document.getElementById('chat-status');
@@ -3406,6 +3433,72 @@ async function openFriendProfile(username) {
         <div style="font-size:20px;font-weight:700;margin-bottom:4px">${u.username}</div>
         <div style="font-size:13px;color:var(--gray);margin-bottom:20px">${getLastActiveText(u.last_active)}</div>
         <button class="btn btn-primary" style="width:auto;padding:12px 28px" onclick="document.getElementById('friend-profile-modal').remove();openChat('${u.username}')">💬 Chat</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+// ── PR Popup ──────────────────────────────────────────────────
+function showPRPopup(exerciseName, weight) {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const existing = document.getElementById('pr-popup');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'pr-popup';
+  el.className = 'pr-popup';
+  el.innerHTML = `
+    <div class="pr-popup-title">${t.pr_title}</div>
+    <div class="pr-popup-msg">${t.pr_msg.replace('{ex}', exerciseName).replace('{kg}', weight)}</div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('pr-popup-show'));
+  setTimeout(() => { el.classList.remove('pr-popup-show'); setTimeout(() => el.remove(), 350); }, 3500);
+}
+
+// ── Impressum & Datenschutz ───────────────────────────────────
+function openImprintModal() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const existing = document.getElementById('imprint-modal');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'imprint-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-width:460px;max-height:80vh;overflow-y:auto">
+      <div class="modal-header">
+        <div class="modal-title">${t.imprint_title}</div>
+        <button class="modal-close" onclick="document.getElementById('imprint-modal').remove()">×</button>
+      </div>
+      <div style="font-size:14px;line-height:1.8;color:var(--black)">
+        <p><strong>FitMol</strong></p>
+        <p>Jozsef Molnar</p>
+        <p>Vienna</p>
+        <p style="margin-top:10px">E-Mail: kontakt@fitmol.at</p>
+        <p style="margin-top:10px;color:var(--gray);font-size:13px">${t.imprint_note}</p>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+function openPrivacyModal() {
+  const t = TRANSLATIONS[getLang()] || TRANSLATIONS.en;
+  const existing = document.getElementById('privacy-modal');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'privacy-modal';
+  el.className = 'modal-overlay open';
+  el.innerHTML = `
+    <div class="modal-card" style="max-width:460px;max-height:80vh;overflow-y:auto">
+      <div class="modal-header">
+        <div class="modal-title">${t.privacy_title}</div>
+        <button class="modal-close" onclick="document.getElementById('privacy-modal').remove()">×</button>
+      </div>
+      <div style="font-size:14px;line-height:1.8;color:var(--black)">
+        <p><strong>${t.privacy_data_title}</strong></p>
+        <p style="color:var(--gray);font-size:13px">${t.privacy_data_body}</p>
+        <p style="margin-top:12px"><strong>Supabase</strong></p>
+        <p style="color:var(--gray);font-size:13px">${t.privacy_host_body}</p>
+        <p style="margin-top:12px"><strong>${t.privacy_contact}</strong></p>
+        <p style="color:var(--gray);font-size:13px">kontakt@fitmol.app</p>
       </div>
     </div>`;
   document.body.appendChild(el);
