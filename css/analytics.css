@@ -1,0 +1,87 @@
+/* ========== ROUTINE PAGE ========== */
+.routine-main { display: flex; align-items: center; justify-content: center; overflow: hidden; height: calc(100vh - 56px - 68px); }
+.routine-grid { display: flex; flex-direction: column; gap: 10px; padding: 0; width: 100%; max-width: 360px; }
+.routine-card {
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.routine-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+.routine-card-content { flex: 1; }
+.routine-card-title { font-size: 17px; font-weight: 900; color: white; }
+.routine-card-desc { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+.routine-card-arrow { font-size: 20px; color: rgba(255,255,255,0.6); }
+
+/* ========== ANALYTICS CALENDAR ========== */
+.analytics-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.cal-day-trained { background: rgba(54,179,126,0.3); color: #36B37E; border: 1px solid #36B37E; }
+.cal-day-missed { background: rgba(231,76,60,0.15); color: #E74C3C; }
+.cal-day-future { background: var(--card-2); color: var(--gray); }
+.cal-day-empty { background: transparent; }
+
+/* Weekly chart */
+.analytics-chart-wrap { position: relative; width: 100%; }
+.analytics-chart-wrap svg { width: 100%; }
+
+/* ========== DIARY TABS ========== */
+.diary-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 0 16px;
+  justify-content: center;
+}
+.diary-tab {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.55;
+}
+.diary-tab:hover { opacity: 0.8; }
+.diary-tab.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  opacity: 1;
+}
+.diary-tab-content { display: none; }
+.diary-tab-content.active { display: block; }
+
+/* Diary trainings log */
+.diary-log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.diary-log-item:last-child { border-bottom: none; }
+.diary-log-date { font-size: 12px; color: var(--gray); }
+.diary-log-title { font-size: 14px; font-weight: 700; }
+.diary-log-weight { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.diary-log-exercise { font-size: 11px; color: var(--gray); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.diary-log-exercise-count { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.diary-log-view { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 4px; }
+.diary-session-clickable:hover { background: var(--card-2); }
+
+/* ========== TRAIN MODAL ========== */
+.train-modal-date { font-size: 18px; font-weight: 700; color: var(--gray); text-align: center; margin-bottom: 24px; }
+.train-today-banner { background: rgba(54,179,126,0.15); border: 1px solid #36B37E; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; }
+.train-today-check { font-size: 48px; }
+.train-today-title { font-size: 20px; font-weight: 900; color: #36B37E; margin: 8px 0 4px; }
+.train-today-time { font-size: 14px; color: var(--gray); }
+.train-not-today { text-align: center; padding: 20px; color: var(--gray); font-size: 16px; }
+.train-picker-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+.train-pick-item { background: var(--card-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.train-pick-item:hover { border-color: var(--blue); }

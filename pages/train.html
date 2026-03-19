@@ -3,8 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FitMol</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#1a6fff">
+    <title>FitMol – Train</title>
+    <link rel="stylesheet" href="../css/core.css" />
+    <link rel="stylesheet" href="../css/train.css" />
+    <style>
+      body, html { overflow: hidden; height: 100%; }
+      #train-page-content { overflow-y: auto; height: calc(100vh - 56px - 68px); }
+    </style>
   </head>
   <body>
     <nav class="navbar">
@@ -34,17 +41,18 @@
         </div>
       </div>
     </nav>
-    <main class="home-content" id="home-week-section">
-    </main>
+    <main class="train-page-content" id="train-page-content"></main>
     <nav class="bottom-nav">
-      <a href="home.html" class="bottom-nav-item active"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
+      <a href="home.html" class="bottom-nav-item"><span class="bn-icon">🏠</span><span data-i18n="bn_home">Home</span></a>
       <a href="routine.html" class="bottom-nav-item"><span class="bn-icon">📋</span><span data-i18n="bn_routine">Routine</span></a>
-      <a href="train.html" class="bottom-nav-item bn-train-btn"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
+      <a href="train.html" class="bottom-nav-item bn-train-btn active"><span class="bn-icon">⚡</span><span data-i18n="bn_train">Train</span></a>
       <a href="analytics.html" class="bottom-nav-item"><span class="bn-icon">📊</span><span data-i18n="bn_diary">Diary</span></a>
       <a href="social.html" class="bottom-nav-item"><span class="bn-icon">👥</span><span data-i18n="bn_social">Social</span></a>
     </nav>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script src="app.js"></script>
+    <script src="../js/app-core.js"></script>
+    <script src="../js/app-train.js"></script>
+    <script src="../js/app-init.js"></script>
   </body>
 </html>

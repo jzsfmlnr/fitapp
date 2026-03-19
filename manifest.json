@@ -1,0 +1,9 @@
+{
+  "name": "FitMol",
+  "short_name": "FitMol",
+  "start_url": "./home.html",
+  "display": "standalone",
+  "background_color": "#050d1f",
+  "theme_color": "#1a6fff",
+  "icons": []
+}

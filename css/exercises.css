@@ -1,0 +1,211 @@
+/* ========== EXERCISE GRID ========== */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.exercise-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: grab;
+  user-select: none;
+  border: 1px solid var(--border);
+}
+
+.exercise-card:active { cursor: grabbing; }
+
+.exercise-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.exercise-card-img {
+  height: 130px;
+  background: linear-gradient(135deg, #0a1228, #050d1f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.exercise-card-abbr-bg {
+  font-size: 52px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.06);
+  letter-spacing: 2px;
+  position: absolute;
+}
+
+.exercise-card-abbr-tag {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(26,111,255,0.7);
+  border-radius: 6px;
+  padding: 3px 9px;
+  backdrop-filter: blur(4px);
+}
+
+.exercise-card-body {
+  padding: 14px 16px 8px;
+}
+
+.exercise-card-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.exercise-card-desc {
+  font-size: 13px;
+  color: var(--gray);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.exercise-card-actions {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ========== EXERCISE TAG GROUPS ========== */
+.ex-tag-group { margin-bottom: 24px; }
+.ex-tag-group-header {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ex-tag-group-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.exercise-card-mini {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s;
+  text-align: center;
+}
+.exercise-card-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.ex-mini-img {
+  height: 70px;
+  background: linear-gradient(135deg, #0a1228, #050d1f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ex-mini-img img { width: 100%; height: 100%; object-fit: cover; }
+.ex-mini-abbr {
+  font-size: 20px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.12);
+}
+.ex-mini-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--black);
+  padding: 6px 6px 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ex-mini-actions {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 4px 6px;
+}
+
+/* ========== EXERCISE MODAL COMPACT ========== */
+.ex-modal-card {
+  padding: 16px 18px;
+  max-width: 420px;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ex-modal-card .modal-header { margin-bottom: 8px; flex-shrink: 0; }
+.ex-modal-card .modal-title { font-size: 16px; }
+.ex-modal-card .form-group { margin-bottom: 8px; }
+.ex-modal-card .form-label { font-size: 11px; margin-bottom: 3px; letter-spacing: 0.5px; }
+.ex-modal-card .form-input { padding: 7px 11px; font-size: 13px; }
+.ex-modal-card .form-textarea { padding: 6px 11px; font-size: 13px; min-height: unset; resize: none; }
+.ex-modal-card .tag-selector { gap: 5px; margin-top: 2px; }
+.ex-modal-card .tag-chip { padding: 4px 10px; font-size: 11px; }
+.ex-modal-card .tab-bar { margin-bottom: 6px !important; }
+.ex-modal-card .tab-btn { padding: 7px; font-size: 12px; }
+.ex-modal-card .img-picker-preview { height: 72px; }
+.ex-modal-card .img-picker-placeholder div:first-child { font-size: 18px; margin-bottom: 2px; }
+.ex-modal-card .img-picker-placeholder { font-size: 11px; }
+.ex-modal-card #modal-save-btn { padding: 10px 16px; margin-top: 4px; flex-shrink: 0; }
+.ex-modal-card #modal-alert { margin-bottom: 6px; }
+
+/* ========== EXERCISE TAGS ========== */
+.tag-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tag-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  font-family: inherit;
+  opacity: 0.6;
+}
+
+.tag-chip:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.tag-chip.selected {
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.ex-tag-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 5px;
+}
